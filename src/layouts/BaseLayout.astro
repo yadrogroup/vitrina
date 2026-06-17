@@ -1,0 +1,61 @@
+---
+import '../styles/global.css';
+import '../styles/store.css';
+import siteConfig from '../../site.config';
+import { themeToStyle } from '../lib/theme';
+import { serializeJsonLd } from '../lib/seo';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalUrl?: string;
+  ogType?: 'website' | 'product';
+  ogImage?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { title, description, canonicalUrl, ogType = 'website', ogImage, jsonLd } = Astro.props;
+const pageTitle = title ?? siteConfig.name;
+const pageDescription = description ?? siteConfig.tagline;
+const themeStyle = themeToStyle(siteConfig.theme);
+const resolvedCanonical = canonicalUrl ?? siteConfig.url;
+const resolvedOgImage = ogImage ?? new URL('/favicon.svg', siteConfig.url).toString();
+---
+
+<!doctype html>
+<html lang="ru" style={themeStyle}>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={pageDescription} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle}</title>
+    <link rel="canonical" href={resolvedCanonical} />
+    <meta property="og:site_name" content={siteConfig.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={resolvedCanonical} />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:image" content={resolvedOgImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={resolvedOgImage} />
+    {
+      jsonLd && (
+        <script type="application/ld+json" set:html={serializeJsonLd(jsonLd)} />
+      )
+    }
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Onest:wght@600;700;800&display=swap&subset=cyrillic"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

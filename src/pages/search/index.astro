@@ -1,0 +1,94 @@
+---
+import StoreLayout from '../../layouts/StoreLayout.astro';
+import { getProducts } from '../../lib/catalog';
+import { buildSitePageSeo } from '../../lib/seo';
+
+const products = getProducts();
+const seo = buildSitePageSeo('Поиск', 'Семантический поиск и поиск по фото', '/search/');
+---
+
+<StoreLayout
+  title={seo.title}
+  description={seo.description}
+  canonicalUrl={seo.canonicalUrl}
+  ogType={seo.ogType}
+>
+  <div class="container search-page">
+    <header class="search-page__head">
+      <h1 data-search-title>Поиск</h1>
+      <p class="search-page__status text-muted" data-search-status hidden></p>
+    </header>
+
+    <div class="search-page__layout">
+      <aside class="search-preview" data-search-preview hidden aria-label="Загруженное фото"></aside>
+      <div class="search-page__results">
+        <div class="product-grid" data-search-grid></div>
+      </div>
+    </div>
+  </div>
+</StoreLayout>
+
+<script type="application/json" data-page-data="search-page" set:html={JSON.stringify(products)}></script>
+<script>
+  import { bootSearchPage } from '../../scripts/boot/search-page-boot';
+  bootSearchPage();
+</script>
+
+<style>
+  .search-page {
+    padding: calc(var(--space) * 8) 0 calc(var(--space) * 12);
+  }
+
+  .search-page__head {
+    margin-bottom: calc(var(--space) * 6);
+  }
+
+  .search-page__status {
+    margin: calc(var(--space) * 2) 0 0;
+    font-size: 0.9375rem;
+  }
+
+  .search-page__layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: calc(var(--space) * 8);
+    align-items: start;
+  }
+
+  .search-preview {
+    position: sticky;
+    top: calc(var(--space) * 4);
+    padding: calc(var(--space) * 4);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+  }
+
+  :global(.search-preview__image) {
+    width: 100%;
+    border-radius: calc(var(--radius-control));
+    display: block;
+  }
+
+  :global(.search-empty) {
+    grid-column: 1 / -1;
+    padding: calc(var(--space) * 8);
+    text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    .search-page__layout {
+      grid-template-columns: 1fr;
+    }
+
+    .search-preview {
+      position: static;
+    }
+  }
+</style>
+
+<style is:global>
+  .search-card .product-card__body {
+    gap: calc(var(--space) * 2);
+  }
+</style>

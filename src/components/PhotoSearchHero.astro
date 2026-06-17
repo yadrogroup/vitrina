@@ -1,0 +1,146 @@
+---
+import siteConfig from '../../site.config';
+import type { Product } from '../lib/types/product';
+
+interface Props {
+  products: Product[];
+}
+
+const { products } = Astro.props;
+---
+
+<section class="photo-hero" id="photo-search">
+  <div class="container photo-hero__layout">
+    <div class="photo-hero__copy">
+      <p class="photo-hero__eyebrow">Поиск по фото</p>
+      <h1 class="photo-hero__title">Нашли мебель на фото? Найдём похожую у нас</h1>
+      <p class="photo-hero__lead text-muted">
+        Загрузите фото — подберём похожую мебель из каталога {siteConfig.name}. Фото не покидает
+        ваше устройство.
+      </p>
+    </div>
+
+    <div
+      class="photo-hero__dropzone"
+      data-photo-dropzone
+      role="region"
+      aria-label="Поиск по фото"
+    >
+      <div class="photo-hero__dropzone-icon" aria-hidden="true">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M4 7h3l2-2h6l2 2h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"
+            stroke="currentColor"
+            stroke-width="1.25"></path>
+          <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.25"></circle>
+        </svg>
+      </div>
+      <p class="photo-hero__dropzone-text">Перетащите фото сюда</p>
+      <p class="photo-hero__dropzone-hint text-muted">JPEG, PNG или WebP до 10 МБ</p>
+      <input
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        data-photo-input
+        class="visually-hidden"
+        aria-label="Загрузить фото для поиска похожей мебели"
+      />
+      <button type="button" class="btn btn--primary btn--lg" data-photo-button>Загрузить фото</button>
+      <p class="photo-hero__status text-muted" data-photo-status hidden></p>
+    </div>
+  </div>
+</section>
+
+<script type="application/json" data-page-data="photo-hero" set:html={JSON.stringify(products)}></script>
+<script>
+  import { bootPhotoHero } from '../scripts/boot/photo-hero-boot';
+  bootPhotoHero();
+</script>
+
+<style>
+  .photo-hero {
+    padding: calc(var(--space) * 14) 0 calc(var(--space) * 16);
+    background:
+      radial-gradient(ellipse 80% 60% at 70% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent),
+      linear-gradient(180deg, var(--surface-2) 0%, var(--bg) 100%);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .photo-hero__layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--space) * 10);
+    align-items: center;
+  }
+
+  .photo-hero__eyebrow {
+    margin: 0 0 calc(var(--space) * 3);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .photo-hero__title {
+    margin-bottom: calc(var(--space) * 4);
+    max-width: 16ch;
+  }
+
+  .photo-hero__lead {
+    font-size: 1.125rem;
+    margin: 0;
+    max-width: 36ch;
+  }
+
+  .photo-hero__dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: calc(var(--space) * 3);
+    padding: calc(var(--space) * 10);
+    border: 2px dashed var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-2);
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .photo-hero__dropzone.is-dragover {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+  }
+
+  .photo-hero__dropzone-icon {
+    color: var(--accent);
+    opacity: 0.85;
+  }
+
+  .photo-hero__dropzone-text {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .photo-hero__dropzone-hint {
+    margin: 0;
+    font-size: 0.8125rem;
+  }
+
+  .photo-hero__status {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 900px) {
+    .photo-hero__layout {
+      grid-template-columns: 1fr;
+      gap: calc(var(--space) * 8);
+    }
+
+    .photo-hero__title {
+      max-width: none;
+    }
+  }
+</style>

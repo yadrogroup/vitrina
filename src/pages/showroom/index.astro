@@ -1,0 +1,109 @@
+---
+import StoreLayout from '../../layouts/StoreLayout.astro';
+import { buildSitePageSeo } from '../../lib/seo';
+import siteConfig from '../../../site.config';
+
+const seo = buildSitePageSeo(
+  'Салоны',
+  `Адрес салона ${siteConfig.name}, режим работы и контакты`,
+  '/showroom/',
+);
+
+const address = siteConfig.contacts.address ?? 'ул. Примерная, 1';
+---
+
+<StoreLayout title={seo.title} description={seo.description} canonicalUrl={seo.canonicalUrl}>
+  <div class="container info-page">
+    <h1>Салоны</h1>
+    <p class="info-page__lead text-muted">
+      Приезжайте посмотреть материалы и садиться на диваны — вживую удобнее, чем на фото.
+    </p>
+
+    <article class="showroom-card">
+      <h2>{siteConfig.contacts.city}</h2>
+      <dl class="showroom-card__details">
+        <div>
+          <dt>Адрес</dt>
+          <dd>{address}</dd>
+        </div>
+        <div>
+          <dt>Телефон</dt>
+          <dd>
+            <a href={`tel:${siteConfig.contacts.phone.replace(/\D/g, '')}`}>
+              {siteConfig.contacts.phone}
+            </a>
+          </dd>
+        </div>
+        <div>
+          <dt>Email</dt>
+          <dd>
+            <a href={`mailto:${siteConfig.contacts.email}`}>{siteConfig.contacts.email}</a>
+          </dd>
+        </div>
+        <div>
+          <dt>Режим работы</dt>
+          <dd>Ежедневно, 10:00–21:00</dd>
+        </div>
+      </dl>
+      <p class="showroom-card__note text-muted">
+        Перед визитом позвоните — подготовим образцы тканей и проверим наличие интересующей модели
+        на складе.
+      </p>
+    </article>
+
+    <p class="info-page__cta">
+      <a href="/catalog/" class="btn btn--primary">Смотреть каталог</a>
+    </p>
+  </div>
+</StoreLayout>
+
+<style>
+  .info-page {
+    padding: calc(var(--space) * 8) 0 calc(var(--space) * 12);
+    max-width: 720px;
+  }
+
+  .info-page__lead {
+    font-size: 1.125rem;
+    margin: calc(var(--space) * 3) 0 calc(var(--space) * 8);
+  }
+
+  .showroom-card {
+    padding: calc(var(--space) * 6);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    margin-bottom: calc(var(--space) * 8);
+  }
+
+  .showroom-card h2 {
+    font-size: 1.25rem;
+    margin-bottom: calc(var(--space) * 5);
+  }
+
+  .showroom-card__details {
+    display: grid;
+    gap: calc(var(--space) * 4);
+    margin: 0;
+  }
+
+  .showroom-card__details dt {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    margin-bottom: calc(var(--space) * 1);
+  }
+
+  .showroom-card__details dd {
+    margin: 0;
+  }
+
+  .showroom-card__note {
+    margin: calc(var(--space) * 5) 0 0;
+    font-size: 0.9375rem;
+  }
+
+  .info-page__cta {
+    margin-top: calc(var(--space) * 6);
+  }
+</style>

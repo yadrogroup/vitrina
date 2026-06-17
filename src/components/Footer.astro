@@ -1,0 +1,24 @@
+---
+import siteConfig from '../../site.config';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__brand">
+      <strong>{siteConfig.name}</strong>
+      <p class="text-muted">{siteConfig.contacts.city}</p>
+    </div>
+    <nav class="site-footer__nav" aria-label="Информация">
+      <a href="/delivery/">Доставка</a>
+      <a href="/services/">Услуги</a>
+      <a href="/showroom/">Салоны</a>
+    </nav>
+    <div class="site-footer__contacts">
+      <a href={`tel:${siteConfig.contacts.phone.replace(/\D/g, '')}`}>{siteConfig.contacts.phone}</a>
+      <a href={`mailto:${siteConfig.contacts.email}`}>{siteConfig.contacts.email}</a>
+    </div>
+    <p class="site-footer__copy text-muted">© {year} {siteConfig.name}</p>
+  </div>
+</footer>

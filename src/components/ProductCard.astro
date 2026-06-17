@@ -1,0 +1,226 @@
+---
+import Badge from './Badge.astro';
+import PriceBlock from './PriceBlock.astro';
+import { discountPercent, getAvailabilityInfo, productImageAlt } from '../lib/format';
+import { productFilterData } from '../lib/filters';
+import type { Product } from '../lib/types/product';
+
+interface Props {
+  product: Product;
+  index?: number;
+  showQuickAdd?: boolean;
+}
+
+const { product, index = 0, showQuickAdd = true } = Astro.props;
+const filterData = productFilterData(product);
+const mainImage = product.images[0];
+const hoverImage = product.images[1];
+const hasImages = product.images.length > 0;
+const discount = discountPercent(product.price, product.oldPrice);
+const availability = getAvailabilityInfo(product);
+---
+
+<article
+  class="product-card"
+  data-product-card
+  data-index={index}
+  data-price={filterData.price}
+  data-title={product.title}
+  data-category={filterData.category}
+  {...Object.fromEntries(
+    Object.entries(filterData)
+      .filter(([key]) => !['price', 'category'].includes(key))
+      .map(([key, value]) => [`data-attr-${key}`, value]),
+  )}
+>
+  <div class="product-card__media-wrap">
+    <a href={`/product/${product.slug}/`} class="product-card__media">
+      {hasImages ? (
+        <>
+          <img
+            class="product-card__img product-card__img--main"
+            src={mainImage}
+            alt={productImageAlt(product)}
+            width="320"
+            height="240"
+            loading="lazy"
+          />
+          {hoverImage && (
+            <img
+              class="product-card__img product-card__img--hover"
+              src={hoverImage}
+              alt={productImageAlt(product, 1)}
+              width="320"
+              height="240"
+              loading="lazy"
+            />
+          )}
+        </>
+      ) : (
+        <div class="product-card__placeholder" role="img" aria-label="Нет фото">
+          <span class="text-muted">Нет фото</span>
+        </div>
+      )}
+
+      <div class="product-card__badges">
+        {discount && <Badge tone="highlight" class="product-card__badge">−{discount}%</Badge>}
+        {availability.tone === 'success' && (
+          <Badge tone="success" class="product-card__badge">{availability.label}</Badge>
+        )}
+      </div>
+    </a>
+
+    {showQuickAdd && (
+      <div class="product-card__quick">
+        <button
+          type="button"
+          class="btn btn--primary btn--sm product-card__quick-btn"
+          data-add-to-cart
+          data-product-id={product.id}
+          data-slug={product.slug}
+          data-title={product.title}
+          data-price={product.price}
+          data-image={mainImage ?? ''}
+        >
+          В корзину
+        </button>
+      </div>
+    )}
+  </div>
+
+  <div class="product-card__body">
+    <h3 class="product-card__title">
+      <a href={`/product/${product.slug}/`}>{product.title}</a>
+    </h3>
+    <PriceBlock price={product.price} oldPrice={product.oldPrice} />
+  </div>
+</article>
+
+<style>
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-1);
+    overflow: hidden;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  .product-card:hover {
+    box-shadow: var(--shadow-2);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .product-card:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  .product-card__media-wrap {
+    position: relative;
+  }
+
+  .product-card__media {
+    display: block;
+    aspect-ratio: 4 / 3;
+    background: var(--surface-2);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+  }
+
+  .product-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .product-card__img--hover {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .product-card:hover .product-card__img--hover {
+      opacity: 1;
+    }
+  }
+
+  .product-card__placeholder {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    font-size: 0.875rem;
+  }
+
+  .product-card__badges {
+    position: absolute;
+    top: calc(var(--space) * 2);
+    left: calc(var(--space) * 2);
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--space) * 1);
+    z-index: 1;
+  }
+
+  .product-card__badge {
+    box-shadow: var(--shadow-1);
+  }
+
+  .product-card__quick {
+    position: absolute;
+    inset-inline: calc(var(--space) * 3);
+    bottom: calc(var(--space) * 3);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 2;
+  }
+
+  .product-card__quick-btn {
+    width: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .product-card:hover .product-card__quick {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-card__quick {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .product-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space) * 2);
+    padding: calc(var(--space) * 4);
+    flex: 1;
+  }
+
+  .product-card__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .product-card__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .product-card__title a:hover {
+    color: var(--accent);
+  }
+</style>

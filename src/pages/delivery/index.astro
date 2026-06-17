@@ -1,0 +1,97 @@
+---
+import StoreLayout from '../../layouts/StoreLayout.astro';
+import { buildSitePageSeo } from '../../lib/seo';
+import siteConfig from '../../../site.config';
+
+const seo = buildSitePageSeo(
+  'Доставка и оплата',
+  'Условия доставки мебели, сборки и оплаты',
+  '/delivery/',
+);
+---
+
+<StoreLayout title={seo.title} description={seo.description} canonicalUrl={seo.canonicalUrl}>
+  <div class="container info-page">
+    <h1>Доставка и оплата</h1>
+    <p class="info-page__lead text-muted">
+      Привезём мебель в {siteConfig.contacts.city} и область, поднимем на этаж и соберём на месте.
+    </p>
+
+    <section class="info-section">
+      <h2>Доставка</h2>
+      <ul>
+        <li>Доставка по городу — от 990 ₽, точную стоимость сообщим после оформления заказа.</li>
+        <li>За МКАД — по тарифу транспортной компании или нашего автопарка.</li>
+        <li>Срок: 3–14 рабочих дней в зависимости от наличия и модели.</li>
+        <li>Подъём на этаж и занос в квартиру — по согласованию, лифт или ручной подъём.</li>
+      </ul>
+    </section>
+
+    <section class="info-section">
+      <h2>Сборка</h2>
+      <p>
+        Сборка корпусной мебели и кроватей — от 1 500 ₽ за изделие. Диваны и мягкая мебель
+        поставляются в собранном виде, при необходимости подключим сборщика.
+      </p>
+    </section>
+
+    <section class="info-section">
+      <h2>Оплата</h2>
+      <ul>
+        <li>Наличными или картой курьеру при получении.</li>
+        <li>Безналичный расчёт для юридических лиц — по счёту.</li>
+        <li>Предоплата 30% — для заказных позиций и комплектов под интерьер.</li>
+      </ul>
+    </section>
+
+    <section class="info-section">
+      <h2>Возврат и обмен</h2>
+      <p>
+        Возврат товара надлежащего качества — в течение 7 дней, если сохранён товарный вид и
+        упаковка. Мебель на заказ возвращается только при производственном браке — поможем
+        оформить претензию.
+      </p>
+    </section>
+
+    <p class="info-page__cta">
+      Вопросы по доставке:
+      <a href={`tel:${siteConfig.contacts.phone.replace(/\D/g, '')}`}>{siteConfig.contacts.phone}</a>
+    </p>
+  </div>
+</StoreLayout>
+
+<style>
+  .info-page {
+    padding: calc(var(--space) * 8) 0 calc(var(--space) * 12);
+    max-width: 720px;
+  }
+
+  .info-page__lead {
+    font-size: 1.125rem;
+    margin: calc(var(--space) * 3) 0 calc(var(--space) * 8);
+  }
+
+  .info-section {
+    margin-bottom: calc(var(--space) * 8);
+  }
+
+  .info-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: calc(var(--space) * 3);
+  }
+
+  .info-section ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  .info-section li + li {
+    margin-top: calc(var(--space) * 2);
+  }
+
+  .info-page__cta {
+    padding: calc(var(--space) * 5);
+    background: var(--surface-2);
+    border-radius: var(--radius-card);
+  }
+</style>

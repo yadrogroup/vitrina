@@ -1,0 +1,14 @@
+[Unit]
+Description=Vitrina order relay
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/vitrina-relay
+EnvironmentFile=/opt/vitrina-relay/.env
+ExecStart=/usr/bin/node /opt/vitrina-relay/local-server.mjs
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

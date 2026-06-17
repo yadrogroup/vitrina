@@ -1,0 +1,44 @@
+---
+import Badge from './Badge.astro';
+import { discountPercent, formatPrice } from '../lib/format';
+
+interface Props {
+  price: number;
+  oldPrice?: number;
+  class?: string;
+}
+
+const { price, oldPrice, class: className = '' } = Astro.props;
+const discount = discountPercent(price, oldPrice);
+---
+
+<div class:list={['price-block', 'price', className]}>
+  <span class="price-block__current" data-product-price>{formatPrice(price)}</span>
+  {oldPrice && oldPrice > price && (
+    <>
+      <span class="price-block__old">{formatPrice(oldPrice)}</span>
+      {discount && <Badge tone="highlight">−{discount}%</Badge>}
+    </>
+  )}
+</div>
+
+<style>
+  .price-block {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: calc(var(--space) * 2);
+  }
+
+  .price-block__current {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .price-block__old {
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+    text-decoration: line-through;
+  }
+</style>

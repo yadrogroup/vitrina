@@ -1,0 +1,307 @@
+---
+import StoreLayout from '../../layouts/StoreLayout.astro';
+import { buildSitePageSeo } from '../../lib/seo';
+import siteConfig from '../../../site.config';
+
+const seo = buildSitePageSeo('Корзина', 'Оформление заказа', '/cart/');
+const relayUrl = import.meta.env.PUBLIC_ORDER_RELAY_URL || siteConfig.orderRelayUrl || '';
+
+const orderConfig = {
+  tenant: siteConfig.tenant,
+  siteName: siteConfig.name,
+  relayUrl,
+  contacts: {
+    phone: siteConfig.contacts.phone,
+    email: siteConfig.contacts.email,
+    whatsapp: siteConfig.contacts.whatsapp,
+  },
+  telegram: {
+    botUsername: siteConfig.telegram.botUsername,
+  },
+};
+---
+
+<StoreLayout title={seo.title} description={seo.description} canonicalUrl={seo.canonicalUrl}>
+  <div class="container cart-page" data-cart-page>
+    <h1>Корзина</h1>
+
+    <div class="cart-page__layout">
+      <div class="cart-page__items">
+        <div data-cart-list class="cart-list"></div>
+
+        <div class="cart-empty" data-cart-empty hidden>
+          <p>Корзина пуста.</p>
+          <a href="/catalog/" class="btn btn--primary">Перейти в каталог</a>
+        </div>
+      </div>
+
+      <aside class="cart-summary" data-cart-summary hidden>
+        <h2 class="cart-summary__title">Оформить заказ</h2>
+        <p class="cart-summary__total price">
+          Итого: <span data-cart-total>0 ₽</span>
+        </p>
+
+        <form class="order-form" data-order-form novalidate>
+          <label class="order-form__field">
+            <span>Имя</span>
+            <input type="text" name="customer_name" autocomplete="name" required />
+          </label>
+          <label class="order-form__field">
+            <span>Телефон</span>
+            <input type="tel" name="customer_phone" autocomplete="tel" required />
+          </label>
+          <label class="order-form__field">
+            <span>Email <span class="text-muted">(необязательно)</span></span>
+            <input type="email" name="customer_email" autocomplete="email" />
+          </label>
+          <label class="order-form__field">
+            <span>Комментарий</span>
+            <textarea name="customer_comment" rows="3" placeholder="Удобное время звонка, адрес доставки"></textarea>
+          </label>
+          <label class="order-form__honeypot" aria-hidden="true">
+            <span>Сайт</span>
+            <input type="text" name="website" tabindex="-1" autocomplete="off" />
+          </label>
+
+          <p class="order-form__status" data-order-status hidden aria-live="polite"></p>
+
+          <button type="submit" class="btn btn--primary btn--lg order-form__submit" data-order-submit>
+            Оформить заказ
+          </button>
+        </form>
+
+        <div class="order-fallback" data-order-fallback hidden>
+          <p class="order-fallback__title">Отправить заказ другим способом</p>
+          <p class="order-fallback__reason text-muted" data-order-fallback-reason></p>
+          <div class="order-fallback__links">
+            <a class="btn btn--secondary btn--sm" data-fallback-telegram hidden target="_blank" rel="noopener">
+              Telegram
+            </a>
+            <a class="btn btn--secondary btn--sm" data-fallback-whatsapp hidden target="_blank" rel="noopener">
+              WhatsApp
+            </a>
+            <a class="btn btn--secondary btn--sm" data-fallback-mailto target="_blank" rel="noopener">
+              Email
+            </a>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn--ghost btn--sm cart-summary__clear" data-cart-clear>
+          Очистить корзину
+        </button>
+      </aside>
+    </div>
+  </div>
+</StoreLayout>
+
+<script type="application/json" data-page-data="cart-page" set:html={JSON.stringify(orderConfig)}></script>
+<script>
+  import { bootCartPage } from '../../scripts/boot/cart-page-boot';
+  bootCartPage();
+</script>
+
+<style>
+  .cart-page {
+    padding: calc(var(--space) * 8) 0 calc(var(--space) * 12);
+  }
+
+  .cart-page__layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: calc(var(--space) * 8);
+    align-items: start;
+    margin-top: calc(var(--space) * 6);
+  }
+
+  .cart-list {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space) * 4);
+  }
+
+  .cart-empty {
+    padding: calc(var(--space) * 8);
+    text-align: center;
+    background: var(--surface-2);
+    border-radius: var(--radius-card);
+  }
+
+  .cart-summary {
+    position: sticky;
+    top: calc(var(--space) * 4);
+    padding: calc(var(--space) * 6);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+  }
+
+  .cart-summary__title {
+    font-size: 1.125rem;
+    margin-bottom: calc(var(--space) * 3);
+  }
+
+  .cart-summary__total {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: calc(var(--space) * 5);
+  }
+
+  .order-form {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space) * 4);
+    margin-bottom: calc(var(--space) * 4);
+  }
+
+  .order-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space) * 1);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .order-form__field input,
+  .order-form__field textarea {
+    padding: calc(var(--space) * 2) calc(var(--space) * 3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    font: inherit;
+    background: var(--surface);
+  }
+
+  .order-form__honeypot {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .order-form__submit {
+    width: 100%;
+  }
+
+  .order-form__status {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  .order-form__status[data-state='success'] {
+    color: var(--success);
+  }
+
+  .order-form__status[data-state='error'] {
+    color: var(--danger);
+  }
+
+  .order-form__status[data-state='sending'] {
+    color: var(--ink-muted);
+  }
+
+  .order-fallback {
+    padding: calc(var(--space) * 4);
+    margin-bottom: calc(var(--space) * 4);
+    background: var(--surface-2);
+    border-radius: var(--radius-control);
+  }
+
+  .order-fallback__title {
+    margin: 0 0 calc(var(--space) * 2);
+    font-weight: 600;
+  }
+
+  .order-fallback__reason {
+    margin: 0 0 calc(var(--space) * 3);
+    font-size: 0.875rem;
+  }
+
+  .order-fallback__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--space) * 2);
+  }
+
+  .cart-summary__clear {
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .cart-page__layout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<style is:global>
+  .cart-item {
+    display: grid;
+    grid-template-columns: 96px 1fr auto;
+    gap: calc(var(--space) * 4);
+    padding: calc(var(--space) * 4);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    align-items: center;
+  }
+
+  .cart-item__media img,
+  .cart-item__placeholder {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: calc(var(--radius-control) / 2);
+    background: var(--surface-2);
+    display: block;
+  }
+
+  .cart-item__title {
+    font-weight: 600;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .cart-item__title:hover {
+    color: var(--accent);
+  }
+
+  .cart-item__price {
+    margin: calc(var(--space) * 1) 0;
+    font-weight: 600;
+  }
+
+  .cart-item__qty {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--space) * 2);
+    margin-top: calc(var(--space) * 2);
+  }
+
+  .cart-item__qty-btn {
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  .cart-item__remove {
+    border: none;
+    background: none;
+    color: var(--ink-muted);
+    font-size: 0.875rem;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 640px) {
+    .cart-item {
+      grid-template-columns: 72px 1fr;
+    }
+
+    .cart-item__remove {
+      grid-column: 2;
+    }
+  }
+</style>

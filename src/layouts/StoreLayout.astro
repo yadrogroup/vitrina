@@ -1,0 +1,37 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalUrl?: string;
+  ogType?: 'website' | 'product';
+  ogImage?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { title, description, canonicalUrl, ogType, ogImage, jsonLd } = Astro.props;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalUrl={canonicalUrl}
+  ogType={ogType}
+  ogImage={ogImage}
+  jsonLd={jsonLd}
+>
+  <a href="#main" class="skip-link">Перейти к содержимому</a>
+  <Header />
+  <main id="main">
+    <slot />
+  </main>
+  <Footer />
+</BaseLayout>
+
+<script>
+  import { initAddToCartButtons } from '../scripts/cart-ui';
+  initAddToCartButtons();
+</script>

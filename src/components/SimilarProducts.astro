@@ -1,0 +1,47 @@
+---
+import ProductCard from './ProductCard.astro';
+import { getCapabilities, getProductById } from '../lib/catalog';
+import { SIMILAR_TOP_K } from '../lib/search/config';
+import { rankEmbeddings } from '../lib/search/math';
+import embeddings from '../../data/embeddings.json';
+
+interface Props {
+  productId: string;
+}
+
+const { productId } = Astro.props;
+const capabilities = getCapabilities();
+const vector = embeddings.items[productId as keyof typeof embeddings.items] as number[] | undefined;
+
+const similarProducts = vector && capabilities.images
+  ? rankEmbeddings(vector, embeddings.items as Record<string, number[]>, SIMILAR_TOP_K + 1)
+      .filter((item) => item.id !== productId)
+      .slice(0, SIMILAR_TOP_K)
+      .map((item) => getProductById(item.id))
+      .filter((product): product is NonNullable<typeof product> => product !== undefined)
+  : [];
+---
+
+{similarProducts.length > 0 && (
+  <section class="similar-products">
+    <h2>Похожие товары</h2>
+    <div class="product-grid">
+      {similarProducts.map((product, index) => (
+        <ProductCard product={product} index={index} />
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .similar-products {
+    margin-top: calc(var(--space) * 12);
+    padding-top: calc(var(--space) * 8);
+    border-top: 1px solid var(--line);
+  }
+
+  .similar-products h2 {
+    margin-bottom: calc(var(--space) * 6);
+    font-size: 1.5rem;
+  }
+</style>

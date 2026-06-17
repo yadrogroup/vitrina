@@ -1,0 +1,334 @@
+---
+import ProductCard from '../../components/ProductCard.astro';
+import StoreLayout from '../../layouts/StoreLayout.astro';
+import { getCategories, getProducts } from '../../lib/catalog';
+import { buildFilterFacets } from '../../lib/filters';
+import { buildSitePageSeo } from '../../lib/seo';
+
+const products = getProducts();
+const facets = buildFilterFacets(products);
+const categories = getCategories();
+const total = products.length;
+const seo = buildSitePageSeo('Каталог', 'Каталог мебели с фильтрами и сортировкой', '/catalog/');
+---
+
+<StoreLayout
+  title={seo.title}
+  description={seo.description}
+  canonicalUrl={seo.canonicalUrl}
+  ogType={seo.ogType}
+>
+  <div class="container catalog-page">
+    <header class="catalog-page__head">
+      <h1>Каталог</h1>
+      <button
+        type="button"
+        class="btn btn--secondary catalog-page__filters-toggle"
+        data-filters-toggle
+        aria-expanded="false"
+        aria-controls="catalog-filters"
+      >
+        Фильтры
+      </button>
+    </header>
+
+    <div class="catalog-page__layout">
+      <aside
+        id="catalog-filters"
+        class="catalog-filters"
+        data-filters-sidebar
+        aria-label="Фильтры каталога"
+      >
+        <div class="catalog-filters__head">
+          <h2 class="catalog-filters__title">Фильтры</h2>
+          <button type="button" class="catalog-filters__close" data-filters-close aria-label="Закрыть фильтры">
+            ×
+          </button>
+        </div>
+
+        <form id="catalog-filters-form" data-catalog-filters>
+          {categories.length > 1 && (
+            <fieldset class="filter-group">
+              <legend>Категория</legend>
+              {categories.map((cat) => (
+                <label class="filter-check">
+                  <input type="checkbox" name="category" value={cat.id} />
+                  <span>{cat.label}</span>
+                  <span class="filter-check__count text-muted">{cat.count}</span>
+                </label>
+              ))}
+            </fieldset>
+          )}
+
+          {facets.map((facet) =>
+            facet.type === 'range' ? (
+              <fieldset class="filter-group">
+                <legend>{facet.label}</legend>
+                <div class="filter-range">
+                  <label>
+                    <span class="visually-hidden">Минимум {facet.label}</span>
+                    <input
+                      type="number"
+                      name={facet.key === 'price' ? 'price_min' : `${facet.key}_min`}
+                      min={facet.min}
+                      max={facet.max}
+                      placeholder={String(facet.min)}
+                    />
+                  </label>
+                  <span aria-hidden="true">—</span>
+                  <label>
+                    <span class="visually-hidden">Максимум {facet.label}</span>
+                    <input
+                      type="number"
+                      name={facet.key === 'price' ? 'price_max' : `${facet.key}_max`}
+                      min={facet.min}
+                      max={facet.max}
+                      placeholder={String(facet.max)}
+                    />
+                  </label>
+                </div>
+              </fieldset>
+            ) : (
+              <fieldset class="filter-group">
+                <legend>{facet.label}</legend>
+                {facet.options?.map((option) => (
+                  <label class="filter-check">
+                    <input type="checkbox" name={`attr_${facet.key}`} value={option.value} />
+                    <span>{option.value}</span>
+                    <span class="filter-check__count text-muted">{option.count}</span>
+                  </label>
+                ))}
+              </fieldset>
+            ),
+          )}
+
+          <button type="reset" class="btn btn--ghost btn--sm">Сбросить</button>
+
+          <div class="catalog-filters__apply">
+            <button type="button" class="btn btn--primary catalog-filters__apply-btn" data-filters-apply>
+              Показать <span data-filters-preview-count>{total}</span>
+            </button>
+          </div>
+        </form>
+      </aside>
+
+      <div class="catalog-page__main">
+        <div class="catalog-toolbar">
+          <p class="catalog-toolbar__count">
+            Найдено <span data-results-count>{total}</span>
+          </p>
+          <label class="catalog-toolbar__sort">
+            <span class="visually-hidden">Сортировка</span>
+            <select name="sort" form="catalog-filters-form">
+              <option value="default">По умолчанию</option>
+              <option value="price_asc">Цена: по возрастанию</option>
+              <option value="price_desc">Цена: по убыванию</option>
+              <option value="title_asc">Название: А–Я</option>
+              <option value="title_desc">Название: Я–А</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="filter-chips" data-filter-chips aria-live="polite"></div>
+
+        <div class="product-grid" data-product-grid>
+          {products.map((product, index) => (
+            <ProductCard product={product} index={index} />
+          ))}
+        </div>
+
+        {total === 0 && (
+          <p class="catalog-empty text-muted">Каталог пуст. Запустите `npm run sync`.</p>
+        )}
+      </div>
+    </div>
+  </div>
+</StoreLayout>
+
+<script type="application/json" data-page-data="catalog-page" set:html={JSON.stringify(facets)}></script>
+<script>
+  import { bootCatalogPage } from '../../scripts/boot/catalog-page-boot';
+  bootCatalogPage();
+</script>
+
+<style>
+  .catalog-page {
+    padding: calc(var(--space) * 8) 0 calc(var(--space) * 12);
+  }
+
+  .catalog-page__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--space) * 4);
+    margin-bottom: calc(var(--space) * 6);
+  }
+
+  .catalog-page__filters-toggle {
+    display: none;
+  }
+
+  .catalog-page__layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: calc(var(--space) * 8);
+    align-items: start;
+  }
+
+  .catalog-filters {
+    position: sticky;
+    top: calc(var(--space) * 4);
+    padding: calc(var(--space) * 5);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+  }
+
+  .catalog-filters__head {
+    display: none;
+  }
+
+  .filter-group {
+    border: none;
+    margin: 0 0 calc(var(--space) * 5);
+    padding: 0;
+  }
+
+  .filter-group legend {
+    font-weight: 600;
+    margin-bottom: calc(var(--space) * 3);
+    padding: 0;
+  }
+
+  .filter-check {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--space) * 2);
+    margin-bottom: calc(var(--space) * 2);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  .filter-check__count {
+    margin-left: auto;
+    font-size: 0.75rem;
+  }
+
+  .filter-range {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--space) * 2);
+  }
+
+  .filter-range input {
+    width: 100%;
+    padding: calc(var(--space) * 2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    font: inherit;
+  }
+
+  .catalog-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--space) * 4);
+    margin-bottom: calc(var(--space) * 4);
+  }
+
+  .catalog-toolbar__sort select {
+    padding: calc(var(--space) * 2) calc(var(--space) * 3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    font: inherit;
+    background: var(--surface);
+  }
+
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--space) * 2);
+    margin-bottom: calc(var(--space) * 4);
+    min-height: 0;
+  }
+
+  .filter-chips:empty {
+    display: none;
+  }
+
+  .catalog-empty {
+    padding: calc(var(--space) * 8);
+    text-align: center;
+  }
+
+  .catalog-filters__apply {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .catalog-page__filters-toggle {
+      display: inline-flex;
+    }
+
+    .catalog-page__layout {
+      grid-template-columns: 1fr;
+    }
+
+    .catalog-filters {
+      position: fixed;
+      inset: auto 0 0 0;
+      z-index: 100;
+      max-height: 80dvh;
+      overflow: auto;
+      border-radius: var(--radius-card) var(--radius-card) 0 0;
+      transform: translateY(100%);
+      transition: transform 0.2s ease;
+      box-shadow: var(--shadow-2);
+    }
+
+    .catalog-filters.is-open {
+      transform: translateY(0);
+    }
+
+    .catalog-filters__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: calc(var(--space) * 4);
+    }
+
+    .catalog-filters__title {
+      font-size: 1.125rem;
+      margin: 0;
+    }
+
+    .catalog-filters__close {
+      border: none;
+      background: none;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--ink-muted);
+    }
+
+    .catalog-filters__apply {
+      display: block;
+      position: sticky;
+      bottom: 0;
+      margin: calc(var(--space) * 4) calc(var(--space) * -5) calc(var(--space) * -5);
+      padding: calc(var(--space) * 4) calc(var(--space) * 5);
+      background: var(--surface);
+      border-top: 1px solid var(--line);
+    }
+
+    .catalog-filters__apply-btn {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .catalog-filters__apply {
+      display: none;
+    }
+  }
+</style>

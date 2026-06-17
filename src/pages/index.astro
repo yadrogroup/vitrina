@@ -1,0 +1,326 @@
+---
+import ProductCard from '../components/ProductCard.astro';
+import PhotoSearchHero from '../components/PhotoSearchHero.astro';
+import TrustBar from '../components/TrustBar.astro';
+import StoreLayout from '../layouts/StoreLayout.astro';
+import {
+  getBundles,
+  getCategories,
+  getFeaturedProducts,
+  getProducts,
+} from '../lib/catalog';
+import { absoluteUrl } from '../lib/seo';
+import siteConfig from '../../site.config';
+
+const featured = getFeaturedProducts(8);
+const bundles = getBundles();
+const categories = getCategories();
+const inspiration = getProducts()
+  .filter((p) => p.images.length > 1 && !p.categories.includes('Комплекты'))
+  .slice(0, 3);
+const seo = {
+  title: siteConfig.name,
+  description: siteConfig.tagline,
+  canonicalUrl: absoluteUrl('/'),
+  ogType: 'website' as const,
+};
+---
+
+<StoreLayout
+  title={seo.title}
+  description={seo.description}
+  canonicalUrl={seo.canonicalUrl}
+  ogType={seo.ogType}
+>
+  <PhotoSearchHero products={getProducts()} />
+
+  <TrustBar />
+
+  {categories.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section__head">
+          <h2>Категории</h2>
+          <a href="/catalog/">Весь каталог</a>
+        </div>
+        <div class="category-strip">
+          {categories.map((cat) => (
+            <a href={`/catalog/?category=${encodeURIComponent(cat.id)}`} class="cat-tile">
+              <span class="cat-tile__media">
+                {cat.image ? (
+                  <img src={cat.image} alt={cat.label} width="240" height="180" loading="lazy" />
+                ) : (
+                  <span class="cat-tile__placeholder" aria-hidden="true"></span>
+                )}
+              </span>
+              <span class="cat-tile__label">{cat.label}</span>
+              <span class="cat-tile__count text-muted">{cat.count} товаров</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {featured.length > 0 && (
+    <section class="section section--alt">
+      <div class="container">
+        <div class="section__head">
+          <h2>Хиты продаж</h2>
+          <a href="/catalog/">Смотреть весь каталог</a>
+        </div>
+        <div class="product-grid" data-product-grid>
+          {featured.map((product, index) => (
+            <ProductCard product={product} index={index} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {bundles.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section__head">
+          <h2>Готовые комплекты</h2>
+          <a href="/catalog/?category=Комплекты">Все комплекты</a>
+        </div>
+        <div class="bundle-grid">
+          {bundles.map((product) => (
+            <a href={`/product/${product.slug}/`} class="bundle-card">
+              <span class="bundle-card__media">
+                <img src={product.images[0]} alt={product.title} width="520" height="360" loading="lazy" />
+              </span>
+              <span class="bundle-card__body">
+                <span class="bundle-card__title">{product.title}</span>
+                <span class="bundle-card__price price">{new Intl.NumberFormat('ru-RU').format(product.price)} ₽</span>
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {inspiration.length > 0 && (
+    <section class="section section--alt">
+      <div class="container">
+        <div class="section__head">
+          <h2>Интерьеры-вдохновение</h2>
+          <a href="/catalog/">Подобрать мебель</a>
+        </div>
+        <div class="inspiration-grid">
+          {inspiration.map((product) => (
+            <a href={`/product/${product.slug}/`} class="inspiration-card">
+              <img src={product.images[1]} alt={product.title} width="480" height="600" loading="lazy" />
+              <span class="inspiration-card__label">{product.title}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+</StoreLayout>
+
+<style>
+  .section {
+    padding: calc(var(--space) * 12) 0;
+  }
+
+  .section--alt {
+    background: var(--surface-2);
+  }
+
+  .section__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: calc(var(--space) * 4);
+    margin-bottom: calc(var(--space) * 6);
+  }
+
+  /* Категории-плитки с фото */
+  .category-strip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: calc(var(--space) * 4);
+  }
+
+  .cat-tile {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space) * 1);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .cat-tile__media {
+    display: block;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: var(--surface-2);
+    box-shadow: var(--shadow-1);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  .cat-tile__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .cat-tile:hover .cat-tile__media {
+    box-shadow: var(--shadow-2);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .cat-tile:hover .cat-tile__media {
+      transform: translateY(-2px);
+    }
+  }
+
+  .cat-tile__label {
+    font-family: var(--font-display);
+    font-weight: 600;
+    margin-top: calc(var(--space) * 2);
+  }
+
+  .cat-tile__count {
+    font-size: 0.8125rem;
+  }
+
+  /* Комплекты */
+  .bundle-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: calc(var(--space) * 5);
+  }
+
+  .bundle-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  .bundle-card__media {
+    aspect-ratio: 16 / 11;
+    overflow: hidden;
+  }
+
+  .bundle-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .bundle-card__body {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: calc(var(--space) * 3);
+    padding: calc(var(--space) * 4);
+  }
+
+  .bundle-card__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+
+  .bundle-card__price {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .bundle-card:hover {
+    box-shadow: var(--shadow-2);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .bundle-card:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  /* Интерьеры */
+  .inspiration-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: calc(var(--space) * 4);
+  }
+
+  .inspiration-card {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    text-decoration: none;
+    box-shadow: var(--shadow-1);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  .inspiration-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .inspiration-card__label {
+    position: absolute;
+    inset-inline: calc(var(--space) * 4);
+    bottom: calc(var(--space) * 4);
+    padding: calc(var(--space) * 2) calc(var(--space) * 3);
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(4px);
+    border-radius: var(--radius-control);
+  }
+
+  .inspiration-card:hover {
+    box-shadow: var(--shadow-2);
+    color: inherit;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .inspiration-card:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .category-strip {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .bundle-grid,
+    .inspiration-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .category-strip {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .bundle-grid,
+    .inspiration-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

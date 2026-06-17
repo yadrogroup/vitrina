@@ -1,0 +1,320 @@
+---
+import AvailabilityBadge from '../../components/AvailabilityBadge.astro';
+import PriceBlock from '../../components/PriceBlock.astro';
+import ServicesBlock from '../../components/ServicesBlock.astro';
+import SimilarProducts from '../../components/SimilarProducts.astro';
+import StoreLayout from '../../layouts/StoreLayout.astro';
+import { getCapabilities, getProducts } from '../../lib/catalog';
+import {
+  attributeLabel,
+  formatAttributeValue,
+  productImageAlt,
+} from '../../lib/format';
+import {
+  buildProductPageSeo,
+  productDescription,
+  splitRichText,
+} from '../../lib/seo';
+import siteConfig from '../../../site.config';
+import type { Product } from '../../lib/types/product';
+
+export function getStaticPaths() {
+  return getProducts().map((product) => ({
+    params: { slug: product.slug },
+    props: { product },
+  }));
+}
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+const capabilities = getCapabilities();
+const mainImage = product.images[0];
+const hasVariants = capabilities.variants && (product.variants?.length ?? 0) > 1;
+const descriptionParagraphs = splitRichText(productDescription(product));
+const seo = buildProductPageSeo(product);
+---
+
+<StoreLayout
+  title={seo.title}
+  description={seo.description}
+  canonicalUrl={seo.canonicalUrl}
+  ogType={seo.ogType}
+  ogImage={seo.ogImage}
+  jsonLd={seo.jsonLd}
+>
+  <article class="pdp container">
+    <div class="pdp__gallery">
+      {product.images.length > 0 ? (
+        <div class="pdp__images">
+          <img
+            class="pdp__main-image"
+            data-product-main-image
+            src={mainImage}
+            alt={productImageAlt(product)}
+            width="640"
+            height="480"
+          />
+          {product.images.length > 1 && (
+            <div class="pdp__thumbs" role="list" aria-label="Миниатюры">
+              {product.images.map((img, i) => (
+                <button
+                  type="button"
+                  class:list={['pdp__thumb', { 'is-active': i === 0 }]}
+                  data-thumb-src={img}
+                  aria-label={`Показать фото ${i + 1}`}
+                  aria-pressed={i === 0 ? 'true' : 'false'}
+                >
+                  <img src={img} alt="" width="72" height="72" loading="lazy" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div class="pdp__placeholder" role="img" aria-label="Нет фото">
+          <span class="text-muted">Нет фото</span>
+        </div>
+      )}
+    </div>
+
+    <div class="pdp__info">
+      <AvailabilityBadge product={product} />
+
+      <h1>{product.title}</h1>
+
+      <PriceBlock price={product.price} oldPrice={product.oldPrice} class="pdp__price" />
+
+      <p class="pdp__showroom text-muted">
+        Шоурум: {siteConfig.contacts.city}{siteConfig.contacts.address ? `, ${siteConfig.contacts.address}` : ''}
+      </p>
+
+      {hasVariants && (
+        <div class="pdp__variants">
+          <p class="pdp__variants-label">Варианты</p>
+          <div class="pdp__variants-list" data-product-variants role="group" aria-label="Выбор варианта">
+            {product.variants!.map((variant, i) => (
+              <button
+                type="button"
+                class:list={['variant-btn', { 'is-active': i === 0 }]}
+                data-variant-id={variant.id}
+                data-variant-label={variant.label}
+                data-variant-price={variant.price ?? product.price}
+                data-variant-image={variant.image ?? mainImage ?? ''}
+                aria-pressed={i === 0 ? 'true' : 'false'}
+              >
+                {variant.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <button
+        type="button"
+        class="btn btn--primary btn--lg pdp__add"
+        data-add-to-cart
+        data-product-id={product.id}
+        data-slug={product.slug}
+        data-title={product.title}
+        data-base-title={product.title}
+        data-price={product.price}
+        data-image={mainImage ?? ''}
+        data-variant-id={hasVariants ? product.variants![0].id : ''}
+      >
+        В корзину
+      </button>
+
+      <ServicesBlock />
+
+      {descriptionParagraphs.length > 0 && (
+        <section class="pdp__description">
+          <h2>Описание</h2>
+          {descriptionParagraphs.map((paragraph) => (
+            <p>{paragraph}</p>
+          ))}
+        </section>
+      )}
+
+      {capabilities.attributes && Object.keys(product.attributes).length > 0 && (
+        <section class="pdp__specs">
+          <h2>Характеристики</h2>
+          <dl class="spec-list">
+            {Object.entries(product.attributes).map(([key, value]) => (
+              <>
+                <dt>{attributeLabel(key)}</dt>
+                <dd>{formatAttributeValue(value)}</dd>
+              </>
+            ))}
+          </dl>
+        </section>
+      )}
+    </div>
+  </article>
+  <div class="container">
+    <SimilarProducts productId={product.id} />
+  </div>
+</StoreLayout>
+
+<script>
+  import { initProductVariants } from '../../scripts/cart-ui';
+
+  initProductVariants();
+
+  document.querySelectorAll('[data-thumb-src]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const src = btn.getAttribute('data-thumb-src');
+      const main = document.querySelector<HTMLImageElement>('[data-product-main-image]');
+      if (!src || !main) return;
+
+      main.src = src;
+      document.querySelectorAll('[data-thumb-src]').forEach((el) => {
+        el.classList.remove('is-active');
+        el.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-pressed', 'true');
+    });
+  });
+</script>
+
+<style>
+  .pdp {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--space) * 10);
+    padding: calc(var(--space) * 8) 0 calc(var(--space) * 12);
+  }
+
+  .pdp__main-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-card);
+    background: var(--surface-2);
+  }
+
+  .pdp__thumbs {
+    display: flex;
+    gap: calc(var(--space) * 2);
+    margin-top: calc(var(--space) * 3);
+    overflow-x: auto;
+  }
+
+  .pdp__thumb {
+    flex: 0 0 auto;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: calc(var(--radius-control) / 2);
+    background: none;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .pdp__thumb.is-active {
+    border-color: var(--accent);
+  }
+
+  .pdp__thumb img {
+    display: block;
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+  }
+
+  .pdp__placeholder {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    background: var(--surface-2);
+    border-radius: var(--radius-card);
+  }
+
+  .pdp__info h1 {
+    margin-top: calc(var(--space) * 3);
+  }
+
+  .pdp__showroom {
+    margin: calc(var(--space) * 3) 0 0;
+    font-size: 0.875rem;
+  }
+
+  .pdp__variants {
+    margin: calc(var(--space) * 6) 0;
+  }
+
+  .pdp__variants-label {
+    font-weight: 500;
+    margin-bottom: calc(var(--space) * 3);
+  }
+
+  .pdp__variants-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--space) * 2);
+  }
+
+  .variant-btn {
+    padding: calc(var(--space) * 2) calc(var(--space) * 4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .variant-btn.is-active {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  }
+
+  .pdp__add {
+    width: 100%;
+    max-width: 20rem;
+  }
+
+  .pdp__description,
+  .pdp__specs {
+    margin-top: calc(var(--space) * 8);
+  }
+
+  .pdp__description h2,
+  .pdp__specs h2 {
+    font-size: 1.25rem;
+    margin-bottom: calc(var(--space) * 4);
+  }
+
+  .pdp__description p:last-child {
+    margin-bottom: 0;
+  }
+
+  .spec-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--space) * 2) calc(var(--space) * 4);
+    margin: 0;
+  }
+
+  .spec-list dt {
+    color: var(--ink-muted);
+    font-size: 0.875rem;
+  }
+
+  .spec-list dd {
+    margin: 0;
+    font-weight: 500;
+  }
+
+  @media (max-width: 768px) {
+    .pdp {
+      grid-template-columns: 1fr;
+      gap: calc(var(--space) * 6);
+    }
+
+    .spec-list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

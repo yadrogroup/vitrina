@@ -1,0 +1,100 @@
+---
+interface Item {
+  title: string;
+  text: string;
+  icon: 'truck' | 'shield' | 'refresh' | 'pin';
+}
+
+const items: Item[] = [
+  { title: 'Доставка под ключ', text: 'Привезём и поднимем на этаж', icon: 'truck' },
+  { title: 'Гарантия до 18 месяцев', text: 'На каркас и механизмы', icon: 'shield' },
+  { title: 'Лёгкий обмен', text: 'В течение 14 дней', icon: 'refresh' },
+  { title: 'Шоурум', text: 'Посмотреть вживую', icon: 'pin' },
+];
+
+const paths: Record<Item['icon'], string> = {
+  truck:
+    'M3 7h11v8H3zM14 10h4l3 3v2h-7zM7 17.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM17 17.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z',
+  shield: 'M12 3l7 3v5c0 4.2-2.9 7.4-7 9-4.1-1.6-7-4.8-7-9V6l7-3Z',
+  refresh: 'M4 11a8 8 0 0 1 14-5l2 2M20 13a8 8 0 0 1-14 5l-2-2M18 4v4h-4M6 20v-4h4',
+  pin: 'M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11ZM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z',
+};
+---
+
+<section class="trustbar" aria-label="Преимущества">
+  <div class="container trustbar__grid">
+    {items.map((item) => (
+      <div class="trustbar__item">
+        <span class="trustbar__icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+            <path d={paths[item.icon]}></path>
+          </svg>
+        </span>
+        <div class="trustbar__text">
+          <span class="trustbar__title">{item.title}</span>
+          <span class="trustbar__sub text-muted">{item.text}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .trustbar {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+  }
+
+  .trustbar__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: calc(var(--space) * 4);
+    padding: calc(var(--space) * 6) 0;
+  }
+
+  .trustbar__item {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--space) * 3);
+  }
+
+  .trustbar__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+    border-radius: 50%;
+  }
+
+  .trustbar__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+  }
+
+  .trustbar__title {
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  .trustbar__sub {
+    font-size: 0.8125rem;
+  }
+
+  @media (max-width: 900px) {
+    .trustbar__grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: calc(var(--space) * 5);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .trustbar__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

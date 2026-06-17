@@ -1,0 +1,11 @@
+{
+  "date": "2026-06-16",
+  "url": "http://localhost:4322/",
+  "scores": {
+    "performance": 59,
+    "accessibility": 96,
+    "best-practices": 96,
+    "seo": 100
+  },
+  "notes": "Perf на localhost: Google Fonts + cold start. CLIP не грузится на главной до взаимодействия."
+}

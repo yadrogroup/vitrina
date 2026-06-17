@@ -1,0 +1,14 @@
+---
+import Badge from './Badge.astro';
+import { getAvailabilityInfo } from '../lib/format';
+import type { Product } from '../lib/types/product';
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+const info = getAvailabilityInfo(product);
+---
+
+<Badge tone={info.tone}>{info.label}</Badge>

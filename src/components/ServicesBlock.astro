@@ -1,0 +1,49 @@
+---
+import siteConfig from '../../site.config';
+---
+
+<section class="services-block" aria-label="Услуги">
+  <div class="services-block__item">
+    <span class="services-block__title">Доставка</span>
+    <span class="services-block__text text-muted">Привезём и поднимем на этаж</span>
+  </div>
+  <div class="services-block__item">
+    <span class="services-block__title">Сборка</span>
+    <span class="services-block__text text-muted">Соберём на месте по запросу</span>
+  </div>
+  <div class="services-block__item">
+    <span class="services-block__title">Шоурум</span>
+    <span class="services-block__text text-muted">
+      {siteConfig.contacts.city}{siteConfig.contacts.address ? `, ${siteConfig.contacts.address}` : ''}
+    </span>
+  </div>
+</section>
+
+<style>
+  .services-block {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: calc(var(--space) * 4);
+    padding: calc(var(--space) * 5);
+    margin-top: calc(var(--space) * 6);
+    background: var(--surface-2);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--line);
+  }
+
+  .services-block__item {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space) * 1);
+  }
+
+  .services-block__title {
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  .services-block__text {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+</style>
