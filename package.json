@@ -24,7 +24,11 @@
     "inference:install": "npm install --prefix inference",
     "inference:start": "npm --prefix inference start",
     "admin:install": "npm install --prefix admin",
-    "admin:start": "npm --prefix admin start"
+    "admin:start": "npm --prefix admin start",
+    "local:dev": "VITRINA_INFERENCE_PORT=8792 VITRINA_RELAY_PORT=8789 astro dev --host 127.0.0.1",
+    "local:admin": "npm --prefix admin start",
+    "local:relay": "npm --prefix relay start",
+    "local:inference": "PORT=8792 npm --prefix inference start"
   },
   "dependencies": {
     "@fontsource-variable/onest": "^5.2.11",

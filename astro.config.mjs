@@ -15,7 +15,8 @@ export default defineConfig({
     },
     server: {
       proxy: {
-        '/api/photo-search': 'http://127.0.0.1:8788',
+        '/api/photo-search': `http://127.0.0.1:${process.env.VITRINA_INFERENCE_PORT || '8792'}`,
+        '/api/order': `http://127.0.0.1:${process.env.VITRINA_RELAY_PORT || '8789'}`,
       },
     },
   },
