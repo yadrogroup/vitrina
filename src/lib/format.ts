@@ -11,6 +11,7 @@ const ATTRIBUTE_LABELS: Record<string, string> = {
   weight_kg: 'Вес, кг',
   style: 'Стиль',
   manufacturer: 'Производитель',
+  состав: 'Состав',
 };
 
 export function formatPrice(amount: number): string {

@@ -1,0 +1,128 @@
+---
+interface NavItem {
+  href: string;
+  label: string;
+  match: (pathname: string, hash: string) => boolean;
+  icon: 'home' | 'catalog' | 'photo' | 'showroom' | 'cart';
+  badge?: boolean;
+}
+
+interface Props {
+  pathname: string;
+  hash?: string;
+}
+
+const { pathname, hash = '' } = Astro.props;
+
+function normalizePath(path: string): string {
+  if (path === '/') return '/';
+  return path.endsWith('/') ? path : `${path}/`;
+}
+
+const currentPath = normalizePath(pathname);
+
+const items: NavItem[] = [
+  {
+    href: '/',
+    label: 'Главная',
+    match: (path, currentHash) => path === '/' && currentHash !== '#photo-search',
+    icon: 'home',
+  },
+  {
+    href: '/catalog/',
+    label: 'Каталог',
+    match: (path) => path.startsWith('/catalog/'),
+    icon: 'catalog',
+  },
+  {
+    href: '/#photo-search',
+    label: 'По фото',
+    match: (path, currentHash) => path === '/' && currentHash === '#photo-search',
+    icon: 'photo',
+  },
+  {
+    href: '/showroom/',
+    label: 'Салоны',
+    match: (path) => path.startsWith('/showroom/'),
+    icon: 'showroom',
+  },
+  {
+    href: '/cart/',
+    label: 'Корзина',
+    match: (path) => path.startsWith('/cart/'),
+    icon: 'cart',
+    badge: true,
+  },
+];
+---
+
+<nav class="mobile-nav" aria-label="Мобильная навигация">
+  {items.map((item) => {
+    const active = item.match(currentPath, hash);
+    return (
+      <a
+        href={item.href}
+        class:list={['mobile-nav__item', { 'is-active': active }]}
+        aria-current={active ? 'page' : undefined}
+      >
+        <span class="mobile-nav__icon" aria-hidden="true">
+          {item.icon === 'home' && (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linejoin="round"
+              />
+            </svg>
+          )}
+          {item.icon === 'catalog' && (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <rect x="4" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+              <rect x="13" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+              <rect x="4" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+              <rect x="13" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+            </svg>
+          )}
+          {item.icon === 'photo' && (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M4 7h3l2-2h6l2 2h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.5" />
+            </svg>
+          )}
+          {item.icon === 'showroom' && (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5" />
+            </svg>
+          )}
+          {item.icon === 'cart' && (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M6 6h15l-1.5 9h-12L6 6Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linejoin="round"
+              />
+              <path d="M6 6 5 3H2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              <circle cx="9" cy="19" r="1.5" fill="currentColor" />
+              <circle cx="18" cy="19" r="1.5" fill="currentColor" />
+            </svg>
+          )}
+          {item.badge && (
+            <span class="mobile-nav__badge" data-cart-count hidden>0</span>
+          )}
+        </span>
+        <span class="mobile-nav__label">{item.label}</span>
+      </a>
+    );
+  })}
+</nav>

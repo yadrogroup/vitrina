@@ -1,109 +1,416 @@
 ---
 import StoreLayout from '../../layouts/StoreLayout.astro';
-import { buildSitePageSeo } from '../../lib/seo';
 import siteConfig from '../../../site.config';
+import { buildSitePageSeo } from '../../lib/seo';
+import { getShowroomMapDefaults, getShowrooms } from '../../lib/showrooms';
+import { buildTwoGisWidgetUrl } from '../../lib/two-gis-map';
+
+const showrooms = getShowrooms();
+const mapDefaults = getShowroomMapDefaults(showrooms);
+const initialShowroom = showrooms.find((s) => s.twoGisOrgId) ?? showrooms[0];
+const initialMapUrl =
+  mapDefaults && initialShowroom?.twoGisOrgId
+    ? buildTwoGisWidgetUrl({
+        city: mapDefaults.city,
+        lat: mapDefaults.lat,
+        lon: mapDefaults.lon,
+        zoom: mapDefaults.zoom,
+        orgId: initialShowroom.twoGisOrgId,
+      })
+    : undefined;
+
+const showroomTypes = [...new Set(showrooms.map((s) => s.type))];
 
 const seo = buildSitePageSeo(
   'Салоны',
-  `Адрес салона ${siteConfig.name}, режим работы и контакты`,
+  `Адреса салонов ${siteConfig.name}, карта и режим работы`,
   '/showroom/',
 );
-
-const address = siteConfig.contacts.address ?? 'ул. Примерная, 1';
 ---
 
 <StoreLayout title={seo.title} description={seo.description} canonicalUrl={seo.canonicalUrl}>
-  <div class="container info-page">
-    <h1>Салоны</h1>
-    <p class="info-page__lead text-muted">
-      Приезжайте посмотреть материалы и садиться на диваны — вживую удобнее, чем на фото.
-    </p>
-
-    <article class="showroom-card">
-      <h2>{siteConfig.contacts.city}</h2>
-      <dl class="showroom-card__details">
-        <div>
-          <dt>Адрес</dt>
-          <dd>{address}</dd>
-        </div>
-        <div>
-          <dt>Телефон</dt>
-          <dd>
-            <a href={`tel:${siteConfig.contacts.phone.replace(/\D/g, '')}`}>
-              {siteConfig.contacts.phone}
-            </a>
-          </dd>
-        </div>
-        <div>
-          <dt>Email</dt>
-          <dd>
-            <a href={`mailto:${siteConfig.contacts.email}`}>{siteConfig.contacts.email}</a>
-          </dd>
-        </div>
-        <div>
-          <dt>Режим работы</dt>
-          <dd>Ежедневно, 10:00–21:00</dd>
-        </div>
-      </dl>
-      <p class="showroom-card__note text-muted">
-        Перед визитом позвоните — подготовим образцы тканей и проверим наличие интересующей модели
-        на складе.
+  <div class="showroom-page" data-showroom-page data-view="map">
+    <div class="container showroom-page__head">
+      <nav class="showroom-page__breadcrumbs text-muted" aria-label="Хлебные крошки">
+        <a href="/">Главная</a>
+        <span aria-hidden="true">/</span>
+        <span>Салоны</span>
+      </nav>
+      <h1>Салоны {siteConfig.name} в городе {siteConfig.contacts.city}</h1>
+      <p class="showroom-page__lead text-muted">
+        Приезжайте посмотреть материалы и посидеть на диванах — вживую удобнее, чем на фото.
       </p>
-    </article>
+    </div>
 
-    <p class="info-page__cta">
+    <div class="container showroom-page__toolbar">
+      <label class="showroom-page__search">
+        <span class="visually-hidden">Поиск по адресу</span>
+        <input
+          type="search"
+          data-showroom-search
+          placeholder="Адрес"
+          autocomplete="off"
+        />
+      </label>
+
+      <div class="showroom-page__filters" role="group" aria-label="Тип салона">
+        <button
+          type="button"
+          class="showroom-filter is-active"
+          data-showroom-type="all"
+          aria-pressed="true"
+        >
+          Все
+        </button>
+        {
+          showroomTypes.map((type) => (
+            <button
+              type="button"
+              class="showroom-filter"
+              data-showroom-type={type}
+              aria-pressed="false"
+            >
+              {type}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="showroom-page__views" role="group" aria-label="Вид">
+        <button
+          type="button"
+          class="showroom-view is-active"
+          data-showroom-view="map"
+          aria-pressed="true"
+        >
+          На карте
+        </button>
+        <button type="button" class="showroom-view" data-showroom-view="list" aria-pressed="false">
+          Списком
+        </button>
+      </div>
+    </div>
+
+    {
+      showrooms.length > 0 && initialMapUrl ? (
+        <div class="container showroom-page__map-section">
+          <div class="showroom-page__map-wrap" data-showroom-map-wrap>
+            <aside class="showroom-panel" data-showroom-panel aria-label="Список салонов">
+              <p class="showroom-panel__count">
+                {showrooms.length} {showrooms.length === 1 ? 'салон' : 'салона'} на карте
+              </p>
+              <div class="showroom-panel__list">
+                {
+                  showrooms.map((showroom) => (
+                    <article
+                      class="showroom-card"
+                      data-showroom-card
+                      data-name={showroom.name}
+                      data-address={showroom.address}
+                      data-type={showroom.type}
+                      data-city={showroom.city}
+                      data-lat={showroom.lat}
+                      data-lon={showroom.lon}
+                      data-org-id={showroom.twoGisOrgId}
+                      data-zoom="16"
+                      tabindex="0"
+                      aria-current="false"
+                    >
+                    <div class="showroom-card__head">
+                      <h2 class="showroom-card__title">{showroom.name}</h2>
+                      <span class="showroom-card__type text-muted">{showroom.type}</span>
+                    </div>
+                    <p class="showroom-card__address">{showroom.address}</p>
+                    <p class="showroom-card__hours text-muted">{showroom.hours}</p>
+                    <p class="showroom-card__phone">
+                      <a href={`tel:${(showroom.phone ?? siteConfig.contacts.phone).replace(/\D/g, '')}`}>
+                        {showroom.phone ?? siteConfig.contacts.phone}
+                      </a>
+                    </p>
+                    <a
+                      class="showroom-card__map-link"
+                      href={showroom.twoGisUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-showroom-external
+                    >
+                      Открыть в 2ГИС
+                    </a>
+                  </article>
+                ))
+              }
+            </div>
+          </aside>
+
+          <iframe
+            class="showroom-page__map"
+            data-showroom-map
+            src={initialMapUrl}
+            title="Салоны на карте 2ГИС"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen
+          />
+          </div>
+        </div>
+      ) : (
+        <div class="container showroom-page__empty">
+          <p class="text-muted">Салоны пока не добавлены. Укажите `showrooms` в site.config.ts.</p>
+        </div>
+      )
+    }
+
+    <div class="container showroom-page__cta">
       <a href="/catalog/" class="btn btn--primary">Смотреть каталог</a>
-    </p>
+    </div>
   </div>
 </StoreLayout>
 
+<script>
+  import { initShowroomPage } from '../../scripts/showroom-page';
+  initShowroomPage();
+</script>
+
 <style>
-  .info-page {
-    padding: calc(var(--space) * 8) 0 calc(var(--space) * 12);
-    max-width: 720px;
+  .showroom-page {
+    padding-bottom: calc(var(--space) * 12);
   }
 
-  .info-page__lead {
-    font-size: 1.125rem;
-    margin: calc(var(--space) * 3) 0 calc(var(--space) * 8);
+  .showroom-page__head {
+    padding: calc(var(--space) * 8) 0 calc(var(--space) * 4);
+  }
+
+  .showroom-page__breadcrumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--space) * 2);
+    font-size: 0.875rem;
+    margin-bottom: calc(var(--space) * 3);
+  }
+
+  .showroom-page__breadcrumbs a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .showroom-page__breadcrumbs a:hover {
+    color: var(--accent);
+  }
+
+  .showroom-page__lead {
+    font-size: 1.0625rem;
+    margin: calc(var(--space) * 3) 0 0;
+    max-width: 52rem;
+  }
+
+  .showroom-page__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--space) * 3);
+    margin-bottom: calc(var(--space) * 4);
+  }
+
+  .showroom-page__search {
+    flex: 1 1 220px;
+  }
+
+  .showroom-page__search input {
+    width: 100%;
+    padding: calc(var(--space) * 3) calc(var(--space) * 4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    font: inherit;
+    background: var(--surface);
+  }
+
+  .showroom-page__filters,
+  .showroom-page__views {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--space) * 2);
+  }
+
+  .showroom-filter,
+  .showroom-view {
+    padding: calc(var(--space) * 2) calc(var(--space) * 3);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    font: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+    color: var(--ink);
+  }
+
+  .showroom-filter.is-active,
+  .showroom-view.is-active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .showroom-page__map-section {
+    margin-bottom: calc(var(--space) * 4);
+  }
+
+  .showroom-page__map-wrap {
+    display: grid;
+    grid-template-columns: min(380px, 40%) 1fr;
+    height: clamp(480px, 65vh, 640px);
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+  }
+
+  .showroom-page__map {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .showroom-panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--line);
+    overflow: hidden;
+  }
+
+  .showroom-panel__count {
+    margin: 0;
+    padding: calc(var(--space) * 4) calc(var(--space) * 5);
+    font-weight: 600;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .showroom-panel__list {
+    overflow: auto;
+    padding: calc(var(--space) * 2);
   }
 
   .showroom-card {
-    padding: calc(var(--space) * 6);
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-card);
-    margin-bottom: calc(var(--space) * 8);
+    padding: calc(var(--space) * 4);
+    border-radius: calc(var(--radius-card) - 2px);
+    cursor: pointer;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
   }
 
-  .showroom-card h2 {
-    font-size: 1.25rem;
-    margin-bottom: calc(var(--space) * 5);
+  .showroom-card + .showroom-card {
+    margin-top: calc(var(--space) * 1);
   }
 
-  .showroom-card__details {
-    display: grid;
-    gap: calc(var(--space) * 4);
-    margin: 0;
+  .showroom-card:hover {
+    background: var(--surface-2);
   }
 
-  .showroom-card__details dt {
-    font-size: 0.8125rem;
+  .showroom-card.is-active {
+    background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  .showroom-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: calc(var(--space) * 3);
+    margin-bottom: calc(var(--space) * 2);
+  }
+
+  .showroom-card__title {
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--ink-muted);
-    margin-bottom: calc(var(--space) * 1);
-  }
-
-  .showroom-card__details dd {
     margin: 0;
+    line-height: 1.3;
   }
 
-  .showroom-card__note {
-    margin: calc(var(--space) * 5) 0 0;
-    font-size: 0.9375rem;
+  .showroom-card__type {
+    font-size: 0.75rem;
+    white-space: nowrap;
   }
 
-  .info-page__cta {
-    margin-top: calc(var(--space) * 6);
+  .showroom-card__address,
+  .showroom-card__hours,
+  .showroom-card__phone {
+    margin: 0 0 calc(var(--space) * 1);
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+
+  .showroom-card__phone a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .showroom-card__phone a:hover {
+    text-decoration: underline;
+  }
+
+  .showroom-card__map-link {
+    display: inline-block;
+    margin-top: calc(var(--space) * 2);
+    font-size: 0.8125rem;
+    color: var(--ink-muted);
+  }
+
+  .showroom-card__map-link:hover {
+    color: var(--accent);
+  }
+
+  .showroom-page__cta {
+    margin-top: calc(var(--space) * 8);
+  }
+
+  .showroom-page__empty {
+    padding: calc(var(--space) * 8) 0;
+  }
+
+  .showroom-page[data-view='list'] .showroom-page__map {
+    display: none;
+  }
+
+  .showroom-page[data-view='list'] .showroom-page__map-wrap {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 0;
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+
+  .showroom-page[data-view='list'] .showroom-panel {
+    border-right: none;
+  }
+
+  @media (max-width: 768px) {
+    .showroom-page__toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .showroom-page__map-wrap {
+      height: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .showroom-page__map {
+      position: relative;
+      order: -1;
+      height: 280px;
+    }
+
+    .showroom-panel {
+      position: static;
+      width: 100%;
+      max-height: none;
+      border-right: none;
+      border-top: 1px solid var(--line);
+    }
+
+    .showroom-page[data-view='list'] .showroom-page__map {
+      display: none;
+    }
   }
 </style>

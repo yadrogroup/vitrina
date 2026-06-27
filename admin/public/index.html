@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Vitrina — админка</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <!-- Вход -->
+  <div id="login">
+    <div class="card">
+      <div class="brand"><b>Vitrina</b> · админка</div>
+      <p class="muted">Войдите, чтобы управлять каталогом</p>
+      <input id="login-pass" type="password" placeholder="Пароль" autocomplete="current-password" />
+      <button class="btn btn--primary" id="login-btn" style="width:100%">Войти</button>
+      <div class="err" id="login-err"></div>
+    </div>
+  </div>
+
+  <!-- Приложение -->
+  <div id="app" class="hidden">
+    <header class="topbar">
+      <div class="brand"><b>Vitrina</b> · каталог</div>
+      <div class="spacer"></div>
+      <span class="pub-status" id="pub-status"></span>
+      <button class="btn btn--primary" id="publish-btn">Опубликовать на сайт</button>
+      <button class="btn btn--ghost btn--sm" id="logout-btn">Выйти</button>
+    </header>
+
+    <main class="main">
+      <!-- Список -->
+      <section id="list-view">
+        <div class="list-head">
+          <h1>Товары</h1>
+          <span class="count" id="list-count"></span>
+          <div class="spacer" style="flex:1"></div>
+          <button class="btn btn--primary" id="add-btn">+ Добавить товар</button>
+        </div>
+        <div id="list-body"></div>
+      </section>
+
+      <!-- Редактор -->
+      <section id="editor-view" class="hidden">
+        <div class="editor">
+          <div class="editor-head">
+            <button class="btn btn--ghost btn--sm" id="back-btn">← К списку</button>
+            <h1 id="editor-title">Новый товар</h1>
+          </div>
+
+          <div class="steps" id="steps"></div>
+
+          <!-- 1. Основное -->
+          <div class="panel active" data-panel="0">
+            <div class="field">
+              <label for="f-title">Название</label>
+              <input id="f-title" placeholder="Диван «Осло»" />
+            </div>
+            <div class="row-3">
+              <div class="field"><label for="f-price">Цена, ₽</label><input id="f-price" type="number" min="0" inputmode="numeric" /></div>
+              <div class="field"><label for="f-oldprice">Старая цена, ₽</label><input id="f-oldprice" type="number" min="0" inputmode="numeric" /><div class="hint">Для зачёркнутой цены. Можно оставить пустым.</div></div>
+              <div class="field"><label for="f-stock">Остаток, шт</label><input id="f-stock" type="number" min="0" inputmode="numeric" /></div>
+            </div>
+            <div class="field">
+              <label for="f-availability">Наличие</label>
+              <select id="f-availability">
+                <option value="auto">Авто (по остатку)</option>
+                <option value="in_stock">В наличии</option>
+                <option value="on_order">Под заказ</option>
+                <option value="out_of_stock">Нет в наличии</option>
+                <option value="unknown">Уточняйте</option>
+              </select>
+            </div>
+            <div class="field field--checks">
+              <label class="check"><input type="checkbox" id="f-bestseller" /> Хит продаж <span class="hint-inline">— бейдж «Хит» на карточке</span></label>
+              <label class="check"><input type="checkbox" id="f-featured" /> Показывать на главной <span class="hint-inline">— в блоке «Хиты продаж»</span></label>
+            </div>
+            <div class="field">
+              <label for="f-description">Описание</label>
+              <textarea id="f-description" placeholder="Коротко о товаре"></textarea>
+            </div>
+          </div>
+
+          <!-- 2. Категории -->
+          <div class="panel" data-panel="1">
+            <div class="field">
+              <label>Категории товара</label>
+              <div class="chips" id="cat-chips"></div>
+              <div class="inline-add">
+                <input id="cat-input" list="cat-list" placeholder="Например: Диваны" />
+                <datalist id="cat-list"></datalist>
+                <button class="btn" id="cat-add">Добавить</button>
+              </div>
+              <div class="hint">Категории формируют разделы на сайте. Можно выбрать существующую или ввести новую.</div>
+            </div>
+          </div>
+
+          <!-- 3. Фото -->
+          <div class="panel" data-panel="2">
+            <div class="field">
+              <label>Фотографии</label>
+              <div class="img-grid" id="img-grid"></div>
+              <div class="dropzone" id="dropzone">
+                Перетащите фото сюда или нажмите, чтобы выбрать. Первое фото — главное (по нему ищут похожие).
+                <input id="img-input" type="file" accept="image/*" multiple hidden />
+              </div>
+              <div class="hint" id="img-status"></div>
+            </div>
+          </div>
+
+          <!-- 4. Характеристики -->
+          <div class="panel" data-panel="3">
+            <div class="field">
+              <label>Характеристики</label>
+              <div class="kv-head muted">
+                <span>Название характеристики</span>
+                <span>Значение</span>
+                <span></span>
+              </div>
+              <div id="attr-list"></div>
+              <button class="btn btn--sm" id="attr-add">+ Добавить характеристику</button>
+              <datalist id="attr-name-list">
+                <option value="Материал"></option>
+                <option value="Цвет"></option>
+                <option value="Ширина"></option>
+                <option value="Высота"></option>
+                <option value="Глубина"></option>
+                <option value="Количество мест"></option>
+                <option value="Вес"></option>
+                <option value="Стиль"></option>
+                <option value="Производитель"></option>
+              </datalist>
+              <div class="hint">
+                <strong>Название</strong> — параметр товара (Материал, Цвет, Ширина).
+                <strong>Значение</strong> — его содержание (Экокожа, серый, 240 см).
+                По этим полям покупатели фильтруют каталог; они же показываются в карточке товара.
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Варианты -->
+          <div class="panel" data-panel="4">
+            <div class="field">
+              <label>Варианты товара</label>
+              <div id="variant-list"></div>
+              <button class="btn btn--sm" id="variant-add">+ Добавить вариант</button>
+              <datalist id="color-list">
+                <option value="бежевый"></option>
+                <option value="серый"></option>
+                <option value="синий"></option>
+                <option value="графит"></option>
+                <option value="молочный"></option>
+                <option value="чёрный"></option>
+                <option value="орех"></option>
+                <option value="натуральный"></option>
+                <option value="коричневый"></option>
+                <option value="белый"></option>
+                <option value="терракота"></option>
+              </datalist>
+              <div class="hint">
+                Варианты — это один товар в разных исполнениях (чаще всего цвета).
+                Добавьте 2 и больше вариантов, у каждого укажите цвет и выберите его фото —
+                на сайте появятся кружки выбора цвета.
+              </div>
+            </div>
+          </div>
+
+          <div class="editor-foot">
+            <button class="btn" id="prev-btn">← Назад</button>
+            <button class="btn btn--primary" id="next-btn">Далее →</button>
+            <div class="spacer"></div>
+            <span class="save-msg" id="save-msg"></span>
+            <button class="btn btn--primary" id="save-btn">Сохранить товар</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -110,7 +110,7 @@ function groupToProduct(group: YmlProductGroup, categoryMap: Map<string, string>
   const primary = group.offers[0];
   const id =
     group.type === 'group' && group.groupId
-      ? `group-${group.groupId}`
+      ? String(group.groupId)
       : String(primary['@_id'] ?? '');
 
   const title = pickString(primary.name) ?? pickString(primary.model) ?? `Товар ${id}`;

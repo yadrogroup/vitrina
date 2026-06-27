@@ -1,0 +1,5 @@
+/* Self-host: только кириллица (RU-сайт), без Google Fonts CDN */
+@import '@fontsource-variable/onest/wght.css';
+@import '@fontsource/golos-text/cyrillic-400.css';
+@import '@fontsource/golos-text/cyrillic-500.css';
+@import '@fontsource/golos-text/cyrillic-600.css';

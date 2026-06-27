@@ -1,14 +1,22 @@
-import { SEARCH_TOP_K, EMBEDDINGS_URL } from '../lib/search/config';
+import { EMBEDDINGS_URL, PHOTO_SEARCH_API_URL, SEARCH_TOP_K } from '../lib/search/config';
+import siteConfig from '../../site.config';
+import { rankProductsByKeyword } from '../lib/search/keyword';
 import { formatPrice, productImageAlt } from '../lib/format';
 import { rankEmbeddings } from '../lib/search/math';
 import type { EmbeddingsFile, PhotoSearchPayload, RankedProduct } from '../lib/search/types';
 import { PHOTO_SEARCH_STORAGE_KEY } from '../lib/search/types';
 import type { Product } from '../lib/types/product';
-import { embedImageBlob, embedTextQuery } from './clip-client';
 
 interface SearchProduct extends Product {
   score?: number;
 }
+
+const PHOTO_PREVIEW_MAX = 480;
+const PHOTO_PREVIEW_JPEG_QUALITY = 0.85;
+const PHOTO_SEARCH_REMOTE_TIMEOUT_MS = 60_000;
+const PHOTO_SEARCH_UNAVAILABLE = 'Сервис поиска временно недоступен';
+
+const photoSearchEndpoint = siteConfig.photoSearchApiUrl ?? PHOTO_SEARCH_API_URL;
 
 let embeddingsCache: EmbeddingsFile | null = null;
 
@@ -22,6 +30,112 @@ export async function loadEmbeddings(): Promise<EmbeddingsFile> {
 
   embeddingsCache = (await response.json()) as EmbeddingsFile;
   return embeddingsCache;
+}
+
+export function refinePhotoResults(products: SearchProduct[], topK: number): SearchProduct[] {
+  if (products.length === 0) return products;
+
+  const topScore = products[0].score ?? 0;
+  const minScore = Math.max(0.12, topScore - 0.08);
+  const topCategory = products[0].categories?.[0];
+
+  return products
+    .filter((product) => (product.score ?? 0) >= minScore)
+    .sort((a, b) => {
+      const aBoost = topCategory && a.categories?.includes(topCategory) ? 0.03 : 0;
+      const bBoost = topCategory && b.categories?.includes(topCategory) ? 0.03 : 0;
+      return (b.score! + bBoost) - (a.score! + aBoost);
+    })
+    .slice(0, topK);
+}
+
+async function resizeFileToJpegBlob(file: Blob): Promise<Blob> {
+  if (typeof createImageBitmap === 'undefined') {
+    return file;
+  }
+
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, PHOTO_PREVIEW_MAX / Math.max(bitmap.width, bitmap.height));
+  const width = Math.max(1, Math.round(bitmap.width * scale));
+  const height = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext('2d');
+  if (!context) {
+    bitmap.close();
+    throw new Error('Не удалось подготовить фото');
+  }
+
+  context.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, 'image/jpeg', PHOTO_PREVIEW_JPEG_QUALITY),
+  );
+  if (!blob) {
+    throw new Error('Не удалось подготовить фото');
+  }
+  return blob;
+}
+
+async function createPreviewDataUrl(file: Blob): Promise<string> {
+  if (typeof createImageBitmap === 'undefined') {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error ?? new Error('Не удалось прочитать фото'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const jpegBlob = await resizeFileToJpegBlob(file);
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error ?? new Error('Не удалось прочитать фото'));
+    reader.readAsDataURL(jpegBlob);
+  });
+}
+
+async function embedImageRemote(
+  file: Blob,
+  onProgress?: (message: string) => void,
+): Promise<number[]> {
+  onProgress?.('Анализирую фото…');
+  const jpegBlob = await resizeFileToJpegBlob(file);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), PHOTO_SEARCH_REMOTE_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(photoSearchEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'image/jpeg' },
+      body: jpegBlob,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(PHOTO_SEARCH_UNAVAILABLE);
+    }
+
+    const payload = (await response.json()) as { ok?: boolean; vector?: number[] };
+    if (!payload.ok || !Array.isArray(payload.vector)) {
+      throw new Error(PHOTO_SEARCH_UNAVAILABLE);
+    }
+
+    return payload.vector;
+  } catch (error) {
+    if (error instanceof Error && error.message === PHOTO_SEARCH_UNAVAILABLE) {
+      throw error;
+    }
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(PHOTO_SEARCH_UNAVAILABLE);
+    }
+    throw new Error(PHOTO_SEARCH_UNAVAILABLE);
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export function mapRankedProducts(
@@ -38,17 +152,11 @@ export function mapRankedProducts(
     .filter((product): product is SearchProduct => product !== null);
 }
 
-export async function searchByText(
-  query: string,
-  products: Product[],
-  onProgress?: (message: string) => void,
-): Promise<SearchProduct[]> {
+export function searchByText(query: string, products: Product[]): SearchProduct[] {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const embeddings = await loadEmbeddings();
-  const vector = await embedTextQuery(trimmed, onProgress);
-  const ranked = rankEmbeddings(vector, embeddings.items, SEARCH_TOP_K);
+  const ranked = rankProductsByKeyword(trimmed, products, SEARCH_TOP_K);
   return mapRankedProducts(products, ranked);
 }
 
@@ -58,13 +166,14 @@ export async function searchByPhoto(
   onProgress?: (message: string) => void,
 ): Promise<{ previewUrl: string; results: SearchProduct[] }> {
   const embeddings = await loadEmbeddings();
-  const vector = await embedImageBlob(file, onProgress);
-  const ranked = rankEmbeddings(vector, embeddings.items, SEARCH_TOP_K);
-  const previewUrl = URL.createObjectURL(file);
+  const vector = await embedImageRemote(file, onProgress);
+  const ranked = rankEmbeddings(vector, embeddings.items, SEARCH_TOP_K * 2);
+  const previewUrl = await createPreviewDataUrl(file);
+  const mapped = mapRankedProducts(products, ranked);
 
   return {
     previewUrl,
-    results: mapRankedProducts(products, ranked),
+    results: refinePhotoResults(mapped, SEARCH_TOP_K),
   };
 }
 
@@ -192,38 +301,39 @@ export async function initSearchPage(products: Product[]): Promise<void> {
 
   if (titleEl) titleEl.textContent = `Результаты: «${query}»`;
 
-  try {
-    setSearchStatus(statusEl, 'Загрузка модели…');
-    const results = await searchByText(query, products, (message) => setSearchStatus(statusEl, message));
-    setSearchStatus(statusEl, '');
-    renderSearchGrid(
-      gridEl,
-      results,
-      'Ничего не найдено. Попробуйте другой запрос или загрузите фото.',
-    );
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Ошибка поиска';
-    setSearchStatus(statusEl, message);
-    renderSearchGrid(gridEl, [], 'Поиск недоступен.');
-  }
+  const results = searchByText(query, products);
+  setSearchStatus(statusEl, '');
+  renderSearchGrid(
+    gridEl,
+    results,
+    'Ничего не найдено. Попробуйте другой запрос или загрузите фото.',
+  );
 }
 
 export function initPhotoDropzone(products: Product[]): void {
   const root = document.querySelector<HTMLElement>('[data-photo-dropzone]');
-  const input = document.querySelector<HTMLInputElement>('[data-photo-input]');
-  const statusEl = document.querySelector<HTMLElement>('[data-photo-status]');
-  const button = document.querySelector<HTMLButtonElement>('[data-photo-button]');
+  if (!root) return;
 
-  if (!root || !input || !button) return;
+  const input = root.querySelector<HTMLInputElement>('[data-photo-input]');
+  const upload = root.querySelector<HTMLElement>('[data-photo-upload]');
+  const statusEl = root.querySelector<HTMLElement>('[data-photo-status]');
+
+  if (!input || !upload) return;
+
+  const setBusy = (busy: boolean): void => {
+    input.disabled = busy;
+    upload.setAttribute('aria-disabled', busy ? 'true' : 'false');
+  };
 
   const handleFile = async (file: File | undefined) => {
-    if (!file || !file.type.startsWith('image/')) {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
       setSearchStatus(statusEl, 'Выберите файл изображения (JPG, PNG, WebP).');
       return;
     }
 
-    button.disabled = true;
-    setSearchStatus(statusEl, 'Загрузка модели…');
+    setBusy(true);
+    setSearchStatus(statusEl, 'Анализирую фото…');
 
     try {
       const { previewUrl, results } = await searchByPhoto(file, products, (message) =>
@@ -242,12 +352,15 @@ export function initPhotoDropzone(products: Product[]): void {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Не удалось обработать фото';
       setSearchStatus(statusEl, message);
-      button.disabled = false;
+      setBusy(false);
     }
   };
 
-  button.addEventListener('click', () => input.click());
-  input.addEventListener('change', () => handleFile(input.files?.[0]));
+  input.addEventListener('change', () => {
+    const file = input.files?.[0];
+    input.value = '';
+    void handleFile(file);
+  });
 
   root.addEventListener('dragover', (event) => {
     event.preventDefault();
@@ -259,7 +372,7 @@ export function initPhotoDropzone(products: Product[]): void {
   root.addEventListener('drop', (event) => {
     event.preventDefault();
     root.classList.remove('is-dragover');
-    handleFile(event.dataTransfer?.files?.[0]);
+    void handleFile(event.dataTransfer?.files?.[0]);
   });
 }
 

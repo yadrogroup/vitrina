@@ -21,6 +21,7 @@ export function getProjectRoot(): string {
 export function configureNodeClipEnv(allowRemote: boolean): void {
   env.localModelPath = MODELS_CACHE;
   env.cacheDir = MODELS_CACHE;
+  env.allowLocalModels = true;
   env.allowRemoteModels = allowRemote;
   env.useBrowserCache = false;
 }
@@ -40,8 +41,8 @@ export async function loadClipModels(
     : undefined;
 
   const [visionModel, textModel, processor, tokenizer] = await Promise.all([
-    SiglipVisionModel.from_pretrained(CLIP_MODEL_ID, { progress_callback }),
-    SiglipTextModel.from_pretrained(CLIP_MODEL_ID, { progress_callback }),
+    SiglipVisionModel.from_pretrained(CLIP_MODEL_ID, { progress_callback, dtype: 'fp32' }),
+    SiglipTextModel.from_pretrained(CLIP_MODEL_ID, { progress_callback, dtype: 'fp32' }),
     AutoProcessor.from_pretrained(CLIP_MODEL_ID, { progress_callback }),
     AutoTokenizer.from_pretrained(CLIP_MODEL_ID, { progress_callback }),
   ]);
@@ -62,50 +63,40 @@ export async function embedImageWithClip(
   source: string | Buffer,
 ): Promise<number[]> {
   const { RawImage } = await import('@huggingface/transformers');
-  const image = await loadRawImage(source);
+  const image = await loadRawImage(source, RawImage);
   const inputs = await models.processor(image);
   const { pooler_output } = await models.visionModel(inputs);
   return tensorToNormalizedVector(pooler_output);
 }
 
-async function loadRawImage(source: string | Buffer): Promise<InstanceType<typeof import('@huggingface/transformers').RawImage>> {
-  const { RawImage } = await import('@huggingface/transformers');
-  const { data, info } = await readImagePixels(source);
-  return new RawImage(new Uint8ClampedArray(data), info.width, info.height, info.channels as 3);
-}
+async function loadRawImage(
+  source: string | Buffer,
+  RawImage: typeof import('@huggingface/transformers').RawImage,
+): Promise<InstanceType<typeof RawImage>> {
+  if (typeof source === 'string' && (source.startsWith('http://') || source.startsWith('https://'))) {
+    return RawImage.read(source);
+  }
 
-async function readImagePixels(source: string | Buffer): Promise<{
-  data: Buffer;
-  info: { width: number; height: number; channels: 3 };
-}> {
-  const input = await readImageFile(source);
-  const { data, info } = await sharp(input, { failOn: 'none', unlimited: true })
+  const filePath =
+    typeof source === 'string' && source.startsWith('/')
+      ? path.join(SCRIPT_ROOT, 'public', source.slice(1))
+      : typeof source === 'string' && path.isAbsolute(source)
+        ? source
+        : typeof source === 'string'
+          ? path.join(SCRIPT_ROOT, source)
+          : null;
+
+  const input = Buffer.isBuffer(source)
+    ? sharp(source, { failOn: 'none' })
+    : sharp(filePath!, { failOn: 'none' });
+
+  const { data, info } = await input
     .rotate()
-    .flatten({ background: { r: 255, g: 255, b: 255 } })
+    .toColourspace('srgb')
     .raw()
     .toBuffer({ resolveWithObject: true });
 
-  if (info.channels !== 3) {
-    throw new Error(`ожидалось 3 канала RGB, получено ${info.channels}`);
-  }
-
-  return { data, info: { width: info.width, height: info.height, channels: 3 } };
-}
-
-async function readImageFile(source: string | Buffer): Promise<string | Buffer> {
-  if (Buffer.isBuffer(source)) return source;
-
-  if (source.startsWith('/')) {
-    return path.join(SCRIPT_ROOT, 'public', source.slice(1));
-  }
-
-  if (source.startsWith('http://') || source.startsWith('https://')) {
-    const response = await fetch(source, { signal: AbortSignal.timeout(10_000) });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return Buffer.from(await response.arrayBuffer());
-  }
-
-  return path.isAbsolute(source) ? source : path.join(SCRIPT_ROOT, source);
+  return new RawImage(new Uint8ClampedArray(data), info.width, info.height, info.channels);
 }
 
 export async function embedTextWithClip(models: ClipModels, text: string): Promise<number[]> {

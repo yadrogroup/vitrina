@@ -1,0 +1,67 @@
+---
+import InfoLayout from '../../layouts/InfoLayout.astro';
+import LegalRequisites from '../../components/LegalRequisites.astro';
+import siteConfig from '../../../site.config';
+
+const showrooms = siteConfig.showrooms ?? [];
+---
+
+<InfoLayout
+  title="Контакты"
+  description="Телефон, email, адреса салонов и реквизиты"
+  path="/contacts/"
+  lead="Свяжитесь с нами по телефону или почте, приезжайте в салон или оформите заказ на сайте."
+>
+  <section class="info-section">
+    <h2>Общие контакты</h2>
+    <dl>
+      <dt>Город</dt>
+      <dd>{siteConfig.contacts.city}</dd>
+      <dt>Телефон</dt>
+      <dd>
+        <a href={`tel:${siteConfig.contacts.phone.replace(/\D/g, '')}`}>
+          {siteConfig.contacts.phone}
+        </a>
+      </dd>
+      <dt>Email</dt>
+      <dd>
+        <a href={`mailto:${siteConfig.contacts.email}`}>{siteConfig.contacts.email}</a>
+      </dd>
+    </dl>
+  </section>
+
+  {showrooms.length > 0 && (
+    <section class="info-section">
+      <h2>Салоны</h2>
+      <ul class="showroom-list">
+        {showrooms.map((room) => (
+          <li>
+            <strong>{room.name}</strong>
+            <br />
+            <span class="text-muted">{room.type} · {room.hours}</span>
+            <br />
+            {room.twoGisUrl ? (
+              <a href={room.twoGisUrl} target="_blank" rel="noopener noreferrer">
+                {room.address}
+              </a>
+            ) : (
+              room.address
+            )}
+            <br />
+            <a href={`tel:${room.phone.replace(/\D/g, '')}`}>{room.phone}</a>
+          </li>
+        ))}
+      </ul>
+      <p>
+        <a href="/showroom/">Карта салонов</a>
+      </p>
+    </section>
+  )}
+
+  <LegalRequisites />
+
+  <p class="info-page__cta">
+    Вопросы по заказу:
+    <a href={`mailto:${siteConfig.contacts.email}`}>{siteConfig.contacts.email}</a>
+  </p>
+</InfoLayout>

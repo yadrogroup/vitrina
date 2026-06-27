@@ -23,6 +23,8 @@ export interface Product {
   categories: string[];
   images: string[];
   attributes: Record<string, string | number>;
+  bestseller?: boolean;
+  featured?: boolean;
   variants?: Variant[];
   embedding?: number[];
   models3d?: { glb?: string; usdz?: string };
@@ -36,8 +38,10 @@ export interface AdapterCapabilities {
   attributes: boolean;
 }
 
+export type AdapterName = 'yml' | 'csv' | 'gsheets' | 'api' | 'db';
+
 export interface SourceAdapter {
-  name: 'yml' | 'csv' | 'gsheets';
+  name: AdapterName;
   capabilities: AdapterCapabilities;
   fetch(): Promise<unknown[]>;
   toCanonical(raw: unknown): Product;
@@ -46,7 +50,7 @@ export interface SourceAdapter {
 export interface CatalogMeta {
   tenant: string;
   updatedAt: string;
-  source: 'yml' | 'csv' | 'gsheets';
+  source: AdapterName;
   capabilities: AdapterCapabilities;
   productCount: number;
   warnings: string[];

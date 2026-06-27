@@ -1,0 +1,77 @@
+---
+import InfoLayout from '../../layouts/InfoLayout.astro';
+import LegalRequisites from '../../components/LegalRequisites.astro';
+import siteConfig from '../../../site.config';
+
+const { legal } = siteConfig;
+---
+
+<InfoLayout
+  title="Публичная оферта"
+  description="Договор розничной купли-продажи мебели дистанционным способом"
+  path="/offer/"
+  lead={`Редакция от ${legal.updatedAt}. ${legal.entityName} предлагает заключить договор на условиях ниже.`}
+>
+  <section class="info-section">
+    <h2>1. Предмет договора</h2>
+    <p>
+      Продавец обязуется передать в собственность Покупателя товар (мебель), а Покупатель —
+      принять и оплатить его на условиях настоящей оферты и карточки товара на сайте.
+    </p>
+  </section>
+
+  <section class="info-section">
+    <h2>2. Оформление заказа</h2>
+    <p>
+      Заказ оформляется через форму на сайте {siteConfig.url}. После отправки заказа менеджер
+      связывается для подтверждения наличия, цены и сроков доставки.
+    </p>
+    <p>
+      <strong>Акцепт оферты</strong> — момент подтверждения заказа продавцом (устно или по
+      email/SMS).
+    </p>
+  </section>
+
+  <section class="info-section">
+    <h2>3. Цена и оплата</h2>
+    <ul>
+      <li>Цены указаны в рублях на сайте и могут быть уточнены при подтверждении.</li>
+      <li>Оплата — наличными или картой при получении, безнал для юрлиц по счёту.</li>
+      <li>Предоплата 30% — для заказных позиций, остаток при получении.</li>
+    </ul>
+  </section>
+
+  <section class="info-section">
+    <h2>4. Доставка</h2>
+    <p>
+      Условия доставки, сборки и сроки — на странице <a href="/delivery/">Доставка и оплата</a>.
+      Риск случайной гибели товара переходит к Покупателю с момента передачи курьером.
+    </p>
+  </section>
+
+  <section class="info-section">
+    <h2>5. Возврат</h2>
+    <p>
+      Возврат и обмен — по правилам на странице <a href="/returns/">Возврат и обмен</a> и
+      Закону РФ «О защите прав потребителей».
+    </p>
+  </section>
+
+  <section class="info-section">
+    <h2>6. Гарантия</h2>
+    <p>
+      Гарантийные обязательства — на странице <a href="/warranty/">Гарантия</a>.
+    </p>
+  </section>
+
+  <section class="info-section">
+    <h2>7. Реквизиты продавца</h2>
+  </section>
+
+  <LegalRequisites />
+
+  <p class="info-page__cta">
+    Вопросы по договору:
+    <a href={`mailto:${siteConfig.contacts.email}`}>{siteConfig.contacts.email}</a>
+  </p>
+</InfoLayout>

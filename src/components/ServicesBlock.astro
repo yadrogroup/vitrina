@@ -1,5 +1,5 @@
 ---
-import siteConfig from '../../site.config';
+import ShowroomAddress from './ShowroomAddress.astro';
 ---
 
 <section class="services-block" aria-label="Услуги">
@@ -14,7 +14,7 @@ import siteConfig from '../../site.config';
   <div class="services-block__item">
     <span class="services-block__title">Шоурум</span>
     <span class="services-block__text text-muted">
-      {siteConfig.contacts.city}{siteConfig.contacts.address ? `, ${siteConfig.contacts.address}` : ''}
+      <ShowroomAddress />
     </span>
   </div>
 </section>

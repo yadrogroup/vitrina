@@ -1,0 +1,21 @@
+---
+import siteConfig from '../../site.config';
+
+const { legal } = siteConfig;
+---
+
+<section class="info-section">
+  <h2>Реквизиты</h2>
+  <dl>
+    <dt>Форма</dt>
+    <dd>{legal.entityType}</dd>
+    <dt>Наименование</dt>
+    <dd>{legal.entityName}</dd>
+    <dt>ИНН</dt>
+    <dd>{legal.inn}</dd>
+    <dt>ОГРН</dt>
+    <dd>{legal.ogrn}</dd>
+    <dt>Юридический адрес</dt>
+    <dd>{legal.legalAddress}</dd>
+  </dl>
+</section>

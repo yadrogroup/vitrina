@@ -9,16 +9,35 @@ const year = new Date().getFullYear();
     <div class="site-footer__brand">
       <strong>{siteConfig.name}</strong>
       <p class="text-muted">{siteConfig.contacts.city}</p>
+      <div class="site-footer__contacts">
+        <a href={`tel:${siteConfig.contacts.phone.replace(/\D/g, '')}`}>{siteConfig.contacts.phone}</a>
+        <a href={`mailto:${siteConfig.contacts.email}`}>{siteConfig.contacts.email}</a>
+      </div>
     </div>
-    <nav class="site-footer__nav" aria-label="Информация">
-      <a href="/delivery/">Доставка</a>
+
+    <nav class="site-footer__col" aria-label="Покупателям">
+      <p class="site-footer__col-title">Покупателям</p>
+      <a href="/delivery/">Доставка и оплата</a>
+      <a href="/returns/">Возврат и обмен</a>
+      <a href="/warranty/">Гарантия</a>
+      <a href="/faq/">Вопросы и ответы</a>
+      <a href="/care/">Уход за мебелью</a>
+    </nav>
+
+    <nav class="site-footer__col" aria-label="Компания">
+      <p class="site-footer__col-title">Компания</p>
+      <a href="/about/">О компании</a>
       <a href="/services/">Услуги</a>
       <a href="/showroom/">Салоны</a>
+      <a href="/contacts/">Контакты</a>
     </nav>
-    <div class="site-footer__contacts">
-      <a href={`tel:${siteConfig.contacts.phone.replace(/\D/g, '')}`}>{siteConfig.contacts.phone}</a>
-      <a href={`mailto:${siteConfig.contacts.email}`}>{siteConfig.contacts.email}</a>
-    </div>
+
+    <nav class="site-footer__col" aria-label="Документы">
+      <p class="site-footer__col-title">Документы</p>
+      <a href="/privacy/">Политика конфиденциальности</a>
+      <a href="/offer/">Публичная оферта</a>
+    </nav>
+
     <p class="site-footer__copy text-muted">© {year} {siteConfig.name}</p>
   </div>
 </footer>

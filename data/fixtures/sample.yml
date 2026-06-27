@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<yml_catalog date="2026-06-17">
+<yml_catalog date="2026-06-22">
   <shop>
     <name>Demo Shop</name>
     <categories>
@@ -11,239 +11,588 @@
       <category id="6">Комплекты</category>
     </categories>
     <offers>
-      <!-- Диваны -->
-      <offer id="101" available="true" group_id="G-roma">
-        <name>Диван «Рим»</name>
-        <price>74990</price>
-        <oldprice>89990</oldprice>
-        <currencyId>RUR</currencyId>
-        <categoryId>1</categoryId>
-        <picture>/demo/sofa-roma.jpg</picture>
-        <picture>/demo/interior-hero.jpg</picture>
-        <description>Модульный угловой диван с деревянным каркасом и мягкими подушками. Раскладывается в спальное место.</description>
-        <param name="Материал">Велюр</param>
-        <param name="Цвет">Бежевый</param>
-        <param name="Ширина">280 см</param>
-        <param name="Стиль">Скандинавский</param>
-        <count>5</count>
-      </offer>
-      <offer id="102" available="true" group_id="G-roma">
-        <name>Диван «Рим»</name>
-        <price>76990</price>
-        <oldprice>91990</oldprice>
-        <categoryId>1</categoryId>
-        <picture>/demo/sofa-roma.jpg</picture>
-        <param name="Материал">Велюр</param>
-        <param name="Цвет">Серый</param>
-        <param name="Ширина">280 см</param>
-        <count>3</count>
-      </offer>
-      <offer id="110" available="true">
+      <!-- Диван «Осло» group_id=110 -->
+      <offer id="110-1" available="true" group_id="110">
         <name>Диван «Осло»</name>
         <price>112990</price>
         <currencyId>RUR</currencyId>
         <categoryId>1</categoryId>
-        <picture>/demo/sofa-oslo.jpg</picture>
-        <picture>/demo/set-minimal.jpg</picture>
-        <description>Прямой диван в коже с лаконичным силуэтом. Подойдёт для гостиной в стиле лофт.</description>
+        <picture>/demo/sofa-oslo-1.webp</picture>
+        <description>Прямой диван в экокоже с лаконичным силуэтом. Ширина 240 см — для гостиной в стиле лофт.</description>
         <param name="Материал">Экокожа</param>
-        <param name="Цвет">Чёрный</param>
+        <param name="Цвет">чёрный</param>
         <param name="Ширина">240 см</param>
         <param name="Стиль">Лофт</param>
         <count>2</count>
       </offer>
-      <offer id="111" available="true">
+      <offer id="110-2" available="true" group_id="110">
+        <name>Диван «Осло»</name>
+        <price>114990</price>
+        <categoryId>1</categoryId>
+        <picture>/demo/sofa-oslo-2.webp</picture>
+        <param name="Материал">Экокожа</param>
+        <param name="Цвет">серый</param>
+        <param name="Ширина">240 см</param>
+        <param name="Стиль">Лофт</param>
+        <count>1</count>
+      </offer>
+      <offer id="110-3" available="true" group_id="110">
+        <name>Диван «Осло»</name>
+        <price>115990</price>
+        <categoryId>1</categoryId>
+        <picture>/demo/sofa-oslo-3.webp</picture>
+        <param name="Материал">Экокожа</param>
+        <param name="Цвет">коричневый</param>
+        <param name="Ширина">240 см</param>
+        <param name="Стиль">Лофт</param>
+        <count>1</count>
+      </offer>
+
+      <!-- Диван «Лофт» group_id=111 -->
+      <offer id="111-1" available="true" group_id="111">
         <name>Диван «Лофт»</name>
         <price>98990</price>
         <oldprice>118990</oldprice>
         <currencyId>RUR</currencyId>
         <categoryId>1</categoryId>
-        <picture>/demo/sofa-loft.jpg</picture>
-        <picture>/demo/set-loft.jpg</picture>
-        <description>Большой модульный диван для просторной гостиной. Съёмные чехлы, стирка при 30°.</description>
+        <picture>/demo/sofa-loft-1.webp</picture>
+        <picture>/demo/sofa-loft-4.webp</picture>
+        <description>Модульный диван шириной 320 см для просторной гостиной. Съёмные чехлы, стирка при 30°C.</description>
         <param name="Материал">Рогожка</param>
-        <param name="Цвет">Молочный</param>
+        <param name="Цвет">молочный</param>
         <param name="Ширина">320 см</param>
         <param name="Стиль">Минимализм</param>
         <count>4</count>
       </offer>
+      <offer id="111-2" available="true" group_id="111">
+        <name>Диван «Лофт»</name>
+        <price>99990</price>
+        <oldprice>118990</oldprice>
+        <categoryId>1</categoryId>
+        <picture>/demo/sofa-loft-2.webp</picture>
+        <param name="Материал">Рогожка</param>
+        <param name="Цвет">серый</param>
+        <param name="Ширина">320 см</param>
+        <param name="Стиль">Минимализм</param>
+        <count>2</count>
+      </offer>
+      <offer id="111-3" available="true" group_id="111">
+        <name>Диван «Лофт»</name>
+        <price>100990</price>
+        <oldprice>118990</oldprice>
+        <categoryId>1</categoryId>
+        <picture>/demo/sofa-loft-3.webp</picture>
+        <param name="Материал">Рогожка</param>
+        <param name="Цвет">бежевый</param>
+        <param name="Ширина">320 см</param>
+        <param name="Стиль">Минимализм</param>
+        <count>2</count>
+      </offer>
 
-      <!-- Кровати -->
-      <offer id="201" available="true">
+      <!-- Кровать «Беллуно» group_id=201 -->
+      <offer id="201-1" available="true" group_id="201">
         <name>Кровать «Беллуно»</name>
         <price>38990</price>
         <oldprice>45990</oldprice>
         <currencyId>RUR</currencyId>
         <categoryId>2</categoryId>
-        <picture>/demo/bed-belluno.jpg</picture>
-        <picture>/demo/bed-son.jpg</picture>
-        <description>Кровать из массива сосны с реечным основанием. Тёплый натуральный оттенок дерева.</description>
+        <picture>/demo/bed-belluno-1.webp</picture>
+        <description>Кровать из массива сосны с реечным основанием. Натуральный оттенок дерева, ширина 160 см.</description>
         <param name="Материал">Массив сосны</param>
-        <param name="Цвет">Натуральный</param>
+        <param name="Цвет">натуральный</param>
         <param name="Ширина">160 см</param>
         <param name="Стиль">Классика</param>
         <count>6</count>
       </offer>
-      <offer id="202" available="true">
+      <offer id="201-2" available="true" group_id="201">
+        <name>Кровать «Беллуно»</name>
+        <price>39990</price>
+        <oldprice>45990</oldprice>
+        <categoryId>2</categoryId>
+        <picture>/demo/bed-belluno-2.webp</picture>
+        <param name="Материал">Массив сосны</param>
+        <param name="Цвет">орех</param>
+        <param name="Ширина">160 см</param>
+        <param name="Стиль">Классика</param>
+        <count>3</count>
+      </offer>
+      <offer id="201-3" available="true" group_id="201">
+        <name>Кровать «Беллуно»</name>
+        <price>40990</price>
+        <oldprice>45990</oldprice>
+        <categoryId>2</categoryId>
+        <picture>/demo/bed-belluno-3.webp</picture>
+        <param name="Материал">Массив сосны</param>
+        <param name="Цвет">белый</param>
+        <param name="Ширина">160 см</param>
+        <param name="Стиль">Классика</param>
+        <count>2</count>
+      </offer>
+
+      <!-- Кровать «Бонсо» group_id=202 -->
+      <offer id="202-1" available="true" group_id="202">
         <name>Кровать «Бонсо»</name>
         <price>42990</price>
         <currencyId>RUR</currencyId>
         <categoryId>2</categoryId>
-        <picture>/demo/bed-bonso.jpg</picture>
-        <picture>/demo/bed-son.jpg</picture>
-        <description>Двуспальная кровать из массива с изголовьем-лесенкой. В комплекте ламели.</description>
+        <picture>/demo/bed-bonso-1.webp</picture>
+        <description>Двуспальная кровать из массива сосны с изголовьем-лесенкой. Ширина 180 см, ламели в комплекте.</description>
         <param name="Материал">Массив сосны</param>
-        <param name="Цвет">Орех</param>
+        <param name="Цвет">орех</param>
         <param name="Ширина">180 см</param>
         <param name="Стиль">Классика</param>
         <count>3</count>
       </offer>
-      <offer id="203" available="false">
+      <offer id="202-2" available="true" group_id="202">
+        <name>Кровать «Бонсо»</name>
+        <price>43990</price>
+        <categoryId>2</categoryId>
+        <picture>/demo/bed-bonso-2.webp</picture>
+        <param name="Материал">Массив сосны</param>
+        <param name="Цвет">натуральный</param>
+        <param name="Ширина">180 см</param>
+        <param name="Стиль">Классика</param>
+        <count>2</count>
+      </offer>
+
+      <!-- Кровать «Сон» group_id=203 -->
+      <offer id="203-1" available="false" group_id="203">
         <name>Кровать «Сон»</name>
         <price>54990</price>
         <currencyId>RUR</currencyId>
         <categoryId>2</categoryId>
-        <picture>/demo/bed-son.jpg</picture>
-        <picture>/demo/set-terra.jpg</picture>
-        <description>Кровать с мягким изголовьем и подъёмным механизмом. Ниша для белья.</description>
+        <picture>/demo/bed-son-1.webp</picture>
+        <description>Кровать с мягким изголовьем и подъёмным механизмом. Ниша для белья, ширина 160 см.</description>
         <param name="Материал">Велюр</param>
-        <param name="Цвет">Графит</param>
+        <param name="Цвет">графит</param>
+        <param name="Ширина">160 см</param>
+        <param name="Стиль">Современный</param>
+      </offer>
+      <offer id="203-2" available="false" group_id="203">
+        <name>Кровать «Сон»</name>
+        <price>55990</price>
+        <categoryId>2</categoryId>
+        <picture>/demo/bed-son-2.webp</picture>
+        <param name="Материал">Велюр</param>
+        <param name="Цвет">серый</param>
+        <param name="Ширина">160 см</param>
+        <param name="Стиль">Современный</param>
+      </offer>
+      <offer id="203-3" available="false" group_id="203">
+        <name>Кровать «Сон»</name>
+        <price>56990</price>
+        <categoryId>2</categoryId>
+        <picture>/demo/bed-son-3.webp</picture>
+        <param name="Материал">Велюр</param>
+        <param name="Цвет">бежевый</param>
         <param name="Ширина">160 см</param>
         <param name="Стиль">Современный</param>
       </offer>
 
-      <!-- Кресла -->
-      <offer id="301" available="true">
+      <!-- Кресло «Сканди» group_id=301 -->
+      <offer id="301-v-m" available="true" group_id="301">
         <name>Кресло «Сканди»</name>
         <price>24990</price>
         <oldprice>31990</oldprice>
         <currencyId>RUR</currencyId>
         <categoryId>3</categoryId>
-        <picture>/demo/armchair-scandi.jpg</picture>
-        <picture>/demo/interior-hero.jpg</picture>
-        <description>Мягкое кресло с обивкой из велюра и металлическим столиком в комплекте.</description>
+        <picture>/demo/armchair-scandi-1.webp</picture>
+        <description>Мягкое кресло с обивкой из велюра. В комплекте металлический столик, ширина 80 см.</description>
         <param name="Материал">Велюр</param>
-        <param name="Цвет">Молочный</param>
+        <param name="Цвет">молочный</param>
         <param name="Ширина">80 см</param>
         <param name="Стиль">Скандинавский</param>
         <count>8</count>
       </offer>
-      <offer id="302" available="true">
+      <offer id="301-v-g" available="true" group_id="301">
+        <name>Кресло «Сканди»</name>
+        <price>25990</price>
+        <oldprice>31990</oldprice>
+        <categoryId>3</categoryId>
+        <picture>/demo/armchair-scandi-2.webp</picture>
+        <param name="Материал">Велюр</param>
+        <param name="Цвет">графит</param>
+        <param name="Ширина">80 см</param>
+        <param name="Стиль">Скандинавский</param>
+        <count>4</count>
+      </offer>
+      <offer id="301-r-m" available="true" group_id="301">
+        <name>Кресло «Сканди»</name>
+        <price>22990</price>
+        <oldprice>31990</oldprice>
+        <categoryId>3</categoryId>
+        <picture>/demo/armchair-scandi-3.webp</picture>
+        <param name="Материал">Рогожка</param>
+        <param name="Цвет">молочный</param>
+        <param name="Ширина">80 см</param>
+        <param name="Стиль">Скандинавский</param>
+        <count>3</count>
+      </offer>
+      <offer id="301-r-g" available="true" group_id="301">
+        <name>Кресло «Сканди»</name>
+        <price>23990</price>
+        <oldprice>31990</oldprice>
+        <categoryId>3</categoryId>
+        <picture>/demo/armchair-scandi-4.webp</picture>
+        <param name="Материал">Рогожка</param>
+        <param name="Цвет">графит</param>
+        <param name="Ширина">80 см</param>
+        <param name="Стиль">Скандинавский</param>
+        <count>2</count>
+      </offer>
+
+      <!-- Кресло «Классик» group_id=302 -->
+      <offer id="302-1" available="true" group_id="302">
         <name>Кресло «Классик»</name>
         <price>29990</price>
         <currencyId>RUR</currencyId>
         <categoryId>3</categoryId>
-        <picture>/demo/armchair-classic.jpg</picture>
-        <picture>/demo/set-terra.jpg</picture>
-        <description>Классическое кресло на деревянных ножках с узорной обивкой.</description>
+        <picture>/demo/armchair-classic-1.webp</picture>
+        <description>Классическое кресло на деревянных ножках с гобеленовой обивкой. Ширина 72 см.</description>
         <param name="Материал">Гобелен</param>
-        <param name="Цвет">Узор</param>
+        <param name="Цвет">узор</param>
         <param name="Ширина">72 см</param>
         <param name="Стиль">Классика</param>
         <count>4</count>
       </offer>
+      <offer id="302-2" available="true" group_id="302">
+        <name>Кресло «Классик»</name>
+        <price>30990</price>
+        <categoryId>3</categoryId>
+        <picture>/demo/armchair-classic-2.webp</picture>
+        <param name="Материал">Гобелен</param>
+        <param name="Цвет">бежевый</param>
+        <param name="Ширина">72 см</param>
+        <param name="Стиль">Классика</param>
+        <count>2</count>
+      </offer>
+      <offer id="302-3" available="true" group_id="302">
+        <name>Кресло «Классик»</name>
+        <price>31990</price>
+        <categoryId>3</categoryId>
+        <picture>/demo/armchair-classic-3.webp</picture>
+        <param name="Материал">Гобелен</param>
+        <param name="Цвет">коричневый</param>
+        <param name="Ширина">72 см</param>
+        <param name="Стиль">Классика</param>
+        <count>2</count>
+      </offer>
 
-      <!-- Шкафы -->
-      <offer id="401" available="true">
+      <!-- Шкаф-купе «Дуал» group_id=401 -->
+      <offer id="401-1" available="true" group_id="401">
         <name>Шкаф-купе «Дуал»</name>
         <price>64990</price>
         <oldprice>78990</oldprice>
         <currencyId>RUR</currencyId>
         <categoryId>4</categoryId>
-        <picture>/demo/wardrobe-dual.jpg</picture>
-        <picture>/demo/set-loft.jpg</picture>
-        <description>Двухстворчатый шкаф-купе с глянцевыми фасадами и зеркалом.</description>
+        <picture>/demo/wardrobe-dual-1.webp</picture>
+        <description>Двухстворчатый шкаф-купе с глянцевыми фасадами и зеркалом. Ширина 200 см.</description>
         <param name="Материал">ЛДСП</param>
-        <param name="Цвет">Белый глянец</param>
+        <param name="Цвет">белый глянец</param>
         <param name="Ширина">200 см</param>
         <param name="Стиль">Современный</param>
         <count>3</count>
       </offer>
-      <offer id="402" available="true">
+      <offer id="401-2" available="true" group_id="401">
+        <name>Шкаф-купе «Дуал»</name>
+        <price>65990</price>
+        <oldprice>78990</oldprice>
+        <categoryId>4</categoryId>
+        <picture>/demo/wardrobe-dual-2.webp</picture>
+        <param name="Материал">ЛДСП</param>
+        <param name="Цвет">серый</param>
+        <param name="Ширина">200 см</param>
+        <param name="Стиль">Современный</param>
+        <count>2</count>
+      </offer>
+
+      <!-- Шкаф «Эскейп» group_id=402 -->
+      <offer id="402-1" available="true" group_id="402">
         <name>Шкаф «Эскейп»</name>
         <price>71990</price>
         <currencyId>RUR</currencyId>
         <categoryId>4</categoryId>
-        <picture>/demo/wardrobe-escape.jpg</picture>
-        <picture>/demo/set-minimal.jpg</picture>
-        <description>Вместительный распашной шкаф с матовыми фасадами во всю стену.</description>
+        <picture>/demo/wardrobe-escape-1.webp</picture>
+        <description>Распашной шкаф с матовыми фасадами из МДФ. Ширина 240 см, стиль минимализм.</description>
         <param name="Материал">МДФ</param>
-        <param name="Цвет">Белый мат</param>
+        <param name="Цвет">белый мат</param>
         <param name="Ширина">240 см</param>
         <param name="Стиль">Минимализм</param>
         <count>2</count>
       </offer>
-      <offer id="403" available="true">
+      <offer id="402-2" available="true" group_id="402">
+        <name>Шкаф «Эскейп»</name>
+        <price>72990</price>
+        <categoryId>4</categoryId>
+        <picture>/demo/wardrobe-escape-2.webp</picture>
+        <param name="Материал">МДФ</param>
+        <param name="Цвет">серый</param>
+        <param name="Ширина">240 см</param>
+        <param name="Стиль">Минимализм</param>
+        <count>1</count>
+      </offer>
+      <offer id="402-3" available="true" group_id="402">
+        <name>Шкаф «Эскейп»</name>
+        <price>73990</price>
+        <categoryId>4</categoryId>
+        <picture>/demo/wardrobe-escape-3.webp</picture>
+        <param name="Материал">МДФ</param>
+        <param name="Цвет">бежевый</param>
+        <param name="Ширина">240 см</param>
+        <param name="Стиль">Минимализм</param>
+        <count>1</count>
+      </offer>
+
+      <!-- Шкаф «Би Фри» group_id=403 -->
+      <offer id="403-1" available="true" group_id="403">
         <name>Шкаф «Би Фри»</name>
         <price>58990</price>
         <oldprice>69990</oldprice>
         <currencyId>RUR</currencyId>
         <categoryId>4</categoryId>
-        <picture>/demo/wardrobe-befree.jpg</picture>
-        <picture>/demo/set-terra.jpg</picture>
-        <description>Шкаф-купе с раздвижными дверями и комбинированными фасадами под дерево.</description>
+        <picture>/demo/wardrobe-befree-1.webp</picture>
+        <description>Шкаф-купе с раздвижными дверями и фасадами под светлый дуб. Ширина 220 см.</description>
         <param name="Материал">ЛДСП</param>
-        <param name="Цвет">Дуб светлый</param>
+        <param name="Цвет">дуб светлый</param>
         <param name="Ширина">220 см</param>
         <param name="Стиль">Скандинавский</param>
         <count>5</count>
       </offer>
+      <offer id="403-2" available="true" group_id="403">
+        <name>Шкаф «Би Фри»</name>
+        <price>59990</price>
+        <oldprice>69990</oldprice>
+        <categoryId>4</categoryId>
+        <picture>/demo/wardrobe-befree-2.webp</picture>
+        <param name="Материал">ЛДСП</param>
+        <param name="Цвет">орех</param>
+        <param name="Ширина">220 см</param>
+        <param name="Стиль">Скандинавский</param>
+        <count>3</count>
+      </offer>
+      <offer id="403-3" available="true" group_id="403">
+        <name>Шкаф «Би Фри»</name>
+        <price>60990</price>
+        <oldprice>69990</oldprice>
+        <categoryId>4</categoryId>
+        <picture>/demo/wardrobe-befree-3.webp</picture>
+        <param name="Материал">ЛДСП</param>
+        <param name="Цвет">белый</param>
+        <param name="Ширина">220 см</param>
+        <param name="Стиль">Скандинавский</param>
+        <count>2</count>
+      </offer>
 
-      <!-- Стеллажи -->
-      <offer id="501" available="true">
+      <!-- Стеллаж «Норвегия» group_id=501 -->
+      <offer id="501-1" available="true" group_id="501">
         <name>Стеллаж «Норвегия»</name>
         <price>12990</price>
         <oldprice>15990</oldprice>
         <currencyId>RUR</currencyId>
         <categoryId>5</categoryId>
-        <picture>/demo/shelf-norway.jpg</picture>
-        <picture>/demo/set-minimal.jpg</picture>
-        <description>Низкий стеллаж-разделитель на две полки. Серый матовый оттенок.</description>
+        <picture>/demo/shelf-norway-1.webp</picture>
+        <description>Низкий стеллаж-разделитель на две полки. Серый матовый оттенок, ширина 120 см.</description>
         <param name="Материал">МДФ</param>
-        <param name="Цвет">Серый</param>
+        <param name="Цвет">серый</param>
         <param name="Ширина">120 см</param>
         <param name="Стиль">Скандинавский</param>
         <count>10</count>
       </offer>
+      <offer id="501-2" available="true" group_id="501">
+        <name>Стеллаж «Норвегия»</name>
+        <price>13490</price>
+        <oldprice>15990</oldprice>
+        <categoryId>5</categoryId>
+        <picture>/demo/shelf-norway-2.webp</picture>
+        <param name="Материал">МДФ</param>
+        <param name="Цвет">белый</param>
+        <param name="Ширина">120 см</param>
+        <param name="Стиль">Скандинавский</param>
+        <count>5</count>
+      </offer>
 
-      <!-- Комплекты -->
-      <offer id="601" available="true">
+      <!-- Комплект «Гостиная Лофт» group_id=601 -->
+      <offer id="601-1" available="true" group_id="601">
         <name>Комплект «Гостиная Лофт»</name>
         <price>189990</price>
         <oldprice>224990</oldprice>
         <currencyId>RUR</currencyId>
         <categoryId>6</categoryId>
-        <picture>/demo/set-loft.jpg</picture>
-        <picture>/demo/sofa-loft.jpg</picture>
-        <description>Готовый комплект для гостиной: диван, кресло и стеллаж в едином стиле лофт.</description>
+        <picture>/demo/set-loft-1.webp</picture>
+        <description>Комплект для гостиной: диван, кресло и стеллаж в едином стиле лофт.</description>
+        <param name="Цвет">серый</param>
         <param name="Стиль">Лофт</param>
         <param name="Состав">Диван + кресло + стеллаж</param>
         <count>2</count>
       </offer>
-      <offer id="602" available="true">
+      <offer id="601-2" available="true" group_id="601">
+        <name>Комплект «Гостиная Лофт»</name>
+        <price>191990</price>
+        <oldprice>224990</oldprice>
+        <categoryId>6</categoryId>
+        <picture>/demo/set-loft-2.webp</picture>
+        <param name="Цвет">коричневый</param>
+        <param name="Стиль">Лофт</param>
+        <param name="Состав">Диван + кресло + стеллаж</param>
+        <count>1</count>
+      </offer>
+      <offer id="601-3" available="true" group_id="601">
+        <name>Комплект «Гостиная Лофт»</name>
+        <price>193990</price>
+        <oldprice>224990</oldprice>
+        <categoryId>6</categoryId>
+        <picture>/demo/set-loft-3.webp</picture>
+        <param name="Цвет">чёрный</param>
+        <param name="Стиль">Лофт</param>
+        <param name="Состав">Диван + кресло + стеллаж</param>
+        <count>1</count>
+      </offer>
+
+      <!-- Комплект «Минимал» group_id=602 -->
+      <offer id="602-1" available="true" group_id="602">
         <name>Комплект «Минимал»</name>
         <price>164990</price>
         <currencyId>RUR</currencyId>
         <categoryId>6</categoryId>
-        <picture>/demo/set-minimal.jpg</picture>
-        <picture>/demo/sofa-oslo.jpg</picture>
-        <description>Лаконичная гостиная в минималистичной палитре: диван, журнальный стол и ТВ-зона.</description>
+        <picture>/demo/set-minimal-1.webp</picture>
+        <picture>/demo/set-minimal-4.webp</picture>
+        <description>Комплект для гостиной: диван, журнальный стол и ТВ-тумба в минималистичной палитре.</description>
+        <param name="Цвет">бежевый</param>
         <param name="Стиль">Минимализм</param>
         <param name="Состав">Диван + стол + тумба</param>
         <count>3</count>
       </offer>
-      <offer id="603" available="true">
+      <offer id="602-2" available="true" group_id="602">
+        <name>Комплект «Минимал»</name>
+        <price>166990</price>
+        <categoryId>6</categoryId>
+        <picture>/demo/set-minimal-2.webp</picture>
+        <param name="Цвет">серый</param>
+        <param name="Стиль">Минимализм</param>
+        <param name="Состав">Диван + стол + тумба</param>
+        <count>2</count>
+      </offer>
+      <offer id="602-3" available="true" group_id="602">
+        <name>Комплект «Минимал»</name>
+        <price>168990</price>
+        <categoryId>6</categoryId>
+        <picture>/demo/set-minimal-3.webp</picture>
+        <param name="Цвет">графит</param>
+        <param name="Стиль">Минимализм</param>
+        <param name="Состав">Диван + стол + тумба</param>
+        <count>1</count>
+      </offer>
+
+      <!-- Комплект «Терракота» group_id=603 -->
+      <offer id="603-1" available="true" group_id="603">
         <name>Комплект «Терракота»</name>
         <price>146990</price>
         <oldprice>172990</oldprice>
         <currencyId>RUR</currencyId>
         <categoryId>6</categoryId>
-        <picture>/demo/set-terra.jpg</picture>
-        <picture>/demo/armchair-classic.jpg</picture>
-        <description>Тёплая гостиная с кирпичной стеной: угловой диван, кресло и обеденная зона.</description>
+        <picture>/demo/set-terra-1.webp</picture>
+        <description>Комплект для гостиной: угловой диван, кресло и обеденная зона. Тёплая палитра, стиль лофт.</description>
+        <param name="Цвет">терракота</param>
         <param name="Стиль">Лофт</param>
         <param name="Состав">Диван + кресло + стол</param>
         <count>2</count>
+      </offer>
+      <offer id="603-2" available="true" group_id="603">
+        <name>Комплект «Терракота»</name>
+        <price>148990</price>
+        <oldprice>172990</oldprice>
+        <categoryId>6</categoryId>
+        <picture>/demo/set-terra-2.webp</picture>
+        <param name="Цвет">бежевый</param>
+        <param name="Стиль">Лофт</param>
+        <param name="Состав">Диван + кресло + стол</param>
+        <count>1</count>
+      </offer>
+      <offer id="603-3" available="true" group_id="603">
+        <name>Комплект «Терракота»</name>
+        <price>150990</price>
+        <oldprice>172990</oldprice>
+        <categoryId>6</categoryId>
+        <picture>/demo/set-terra-3.webp</picture>
+        <param name="Цвет">коричневый</param>
+        <param name="Стиль">Лофт</param>
+        <param name="Состав">Диван + кресло + стол</param>
+        <count>1</count>
+      </offer>
+
+      <!-- Диван «Рим» group_id=group-G-roma -->
+      <offer id="101-220" available="true" group_id="group-G-roma">
+        <name>Диван «Рим»</name>
+        <price>69990</price>
+        <oldprice>89990</oldprice>
+        <currencyId>RUR</currencyId>
+        <categoryId>1</categoryId>
+        <picture>/demo/sofa-roma-1.webp</picture>
+        <description>Модульный угловой диван с деревянным каркасом. Раскладывается в спальное место.</description>
+        <param name="Материал">Велюр</param>
+        <param name="Цвет">бежевый</param>
+        <param name="Ширина">220 см</param>
+        <param name="Стиль">Скандинавский</param>
+        <count>5</count>
+      </offer>
+      <offer id="101-280" available="true" group_id="group-G-roma">
+        <name>Диван «Рим»</name>
+        <price>74990</price>
+        <oldprice>89990</oldprice>
+        <categoryId>1</categoryId>
+        <picture>/demo/sofa-roma-1.webp</picture>
+        <param name="Материал">Велюр</param>
+        <param name="Цвет">бежевый</param>
+        <param name="Ширина">280 см</param>
+        <param name="Стиль">Скандинавский</param>
+        <count>3</count>
+      </offer>
+      <offer id="102-220" available="true" group_id="group-G-roma">
+        <name>Диван «Рим»</name>
+        <price>71990</price>
+        <oldprice>89990</oldprice>
+        <categoryId>1</categoryId>
+        <picture>/demo/sofa-roma-2.webp</picture>
+        <param name="Материал">Велюр</param>
+        <param name="Цвет">серый</param>
+        <param name="Ширина">220 см</param>
+        <param name="Стиль">Скандинавский</param>
+        <count>3</count>
+      </offer>
+      <offer id="102-280" available="true" group_id="group-G-roma">
+        <name>Диван «Рим»</name>
+        <price>76990</price>
+        <oldprice>89990</oldprice>
+        <categoryId>1</categoryId>
+        <picture>/demo/sofa-roma-2.webp</picture>
+        <param name="Материал">Велюр</param>
+        <param name="Цвет">серый</param>
+        <param name="Ширина">280 см</param>
+        <count>2</count>
+      </offer>
+      <offer id="103-220" available="true" group_id="group-G-roma">
+        <name>Диван «Рим»</name>
+        <price>72990</price>
+        <oldprice>89990</oldprice>
+        <categoryId>1</categoryId>
+        <picture>/demo/sofa-roma-3.webp</picture>
+        <param name="Материал">Велюр</param>
+        <param name="Цвет">синий</param>
+        <param name="Ширина">220 см</param>
+        <param name="Стиль">Скандинавский</param>
+        <count>2</count>
+      </offer>
+      <offer id="103-280" available="true" group_id="group-G-roma">
+        <name>Диван «Рим»</name>
+        <price>77990</price>
+        <oldprice>89990</oldprice>
+        <categoryId>1</categoryId>
+        <picture>/demo/sofa-roma-3.webp</picture>
+        <param name="Материал">Велюр</param>
+        <param name="Цвет">синий</param>
+        <param name="Ширина">280 см</param>
+        <param name="Стиль">Скандинавский</param>
+        <count>1</count>
       </offer>
     </offers>
   </shop>

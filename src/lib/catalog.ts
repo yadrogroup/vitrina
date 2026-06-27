@@ -57,14 +57,18 @@ export function getBundles(): Product[] {
   return getProductsByCategory(BUNDLE_CATEGORY);
 }
 
-/** Хиты: товары без комплектов, со скидкой — в начало */
+function sortByDiscount(products: Product[]): Product[] {
+  return [...products].sort((a, b) => {
+    const da = a.oldPrice && a.oldPrice > a.price ? 1 : 0;
+    const db = b.oldPrice && b.oldPrice > b.price ? 1 : 0;
+    return db - da;
+  });
+}
+
+/** Хиты на главной: отмеченные featured; если никого нет — fallback по скидке */
 export function getFeaturedProducts(limit = 8): Product[] {
-  return getProducts()
-    .filter((p) => !p.categories.includes(BUNDLE_CATEGORY))
-    .sort((a, b) => {
-      const da = a.oldPrice && a.oldPrice > a.price ? 1 : 0;
-      const db = b.oldPrice && b.oldPrice > b.price ? 1 : 0;
-      return db - da;
-    })
-    .slice(0, limit);
+  const nonBundles = getProducts().filter((p) => !p.categories.includes(BUNDLE_CATEGORY));
+  const featured = nonBundles.filter((p) => p.featured === true);
+  const source = featured.length > 0 ? featured : sortByDiscount(nonBundles);
+  return source.slice(0, limit);
 }

@@ -2,6 +2,7 @@
 import AvailabilityBadge from '../../components/AvailabilityBadge.astro';
 import PriceBlock from '../../components/PriceBlock.astro';
 import ServicesBlock from '../../components/ServicesBlock.astro';
+import ShowroomAddress from '../../components/ShowroomAddress.astro';
 import SimilarProducts from '../../components/SimilarProducts.astro';
 import StoreLayout from '../../layouts/StoreLayout.astro';
 import { getCapabilities, getProducts } from '../../lib/catalog';
@@ -15,7 +16,7 @@ import {
   productDescription,
   splitRichText,
 } from '../../lib/seo';
-import siteConfig from '../../../site.config';
+import { deriveVariantAxes, getColorHex } from '../../lib/variants';
 import type { Product } from '../../lib/types/product';
 
 export function getStaticPaths() {
@@ -32,9 +33,15 @@ interface Props {
 const { product } = Astro.props;
 const capabilities = getCapabilities();
 const mainImage = product.images[0];
-const hasVariants = capabilities.variants && (product.variants?.length ?? 0) > 1;
+const variantConfig = deriveVariantAxes(product);
+const hasVariants = Boolean(variantConfig);
 const descriptionParagraphs = splitRichText(productDescription(product));
 const seo = buildProductPageSeo(product);
+
+const colorImageMap = variantConfig?.colorImage ?? {};
+const thumbColorBySrc = new Map<string, string>(
+  Object.entries(colorImageMap).map(([color, src]) => [src, color]),
+);
 ---
 
 <StoreLayout
@@ -45,7 +52,7 @@ const seo = buildProductPageSeo(product);
   ogImage={seo.ogImage}
   jsonLd={seo.jsonLd}
 >
-  <article class="pdp container">
+  <article class="pdp container" data-product-page>
     <div class="pdp__gallery">
       {product.images.length > 0 ? (
         <div class="pdp__images">
@@ -59,17 +66,25 @@ const seo = buildProductPageSeo(product);
           />
           {product.images.length > 1 && (
             <div class="pdp__thumbs" role="list" aria-label="Миниатюры">
-              {product.images.map((img, i) => (
-                <button
-                  type="button"
-                  class:list={['pdp__thumb', { 'is-active': i === 0 }]}
-                  data-thumb-src={img}
-                  aria-label={`Показать фото ${i + 1}`}
-                  aria-pressed={i === 0 ? 'true' : 'false'}
-                >
-                  <img src={img} alt="" width="72" height="72" loading="lazy" />
-                </button>
-              ))}
+              {product.images.map((img, i) => {
+                const thumbColor = thumbColorBySrc.get(img);
+                return (
+                  <button
+                    type="button"
+                    class:list={['pdp__thumb', { 'is-active': i === 0 }]}
+                    data-thumb-src={img}
+                    data-color={thumbColor ?? undefined}
+                    aria-label={
+                      thumbColor
+                        ? `Цвет: ${thumbColor}`
+                        : `Показать фото ${i + 1}`
+                    }
+                    aria-pressed={i === 0 ? 'true' : 'false'}
+                  >
+                    <img src={img} alt="" width="72" height="72" loading="lazy" />
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -88,27 +103,54 @@ const seo = buildProductPageSeo(product);
       <PriceBlock price={product.price} oldPrice={product.oldPrice} class="pdp__price" />
 
       <p class="pdp__showroom text-muted">
-        Шоурум: {siteConfig.contacts.city}{siteConfig.contacts.address ? `, ${siteConfig.contacts.address}` : ''}
+        Шоурум: <ShowroomAddress />
       </p>
 
-      {hasVariants && (
-        <div class="pdp__variants">
-          <p class="pdp__variants-label">Варианты</p>
-          <div class="pdp__variants-list" data-product-variants role="group" aria-label="Выбор варианта">
-            {product.variants!.map((variant, i) => (
-              <button
-                type="button"
-                class:list={['variant-btn', { 'is-active': i === 0 }]}
-                data-variant-id={variant.id}
-                data-variant-label={variant.label}
-                data-variant-price={variant.price ?? product.price}
-                data-variant-image={variant.image ?? mainImage ?? ''}
-                aria-pressed={i === 0 ? 'true' : 'false'}
+      {hasVariants && variantConfig && (
+        <div class="pdp__variants" data-product-variants>
+          {variantConfig.axes.map((axis) => (
+            <div class="pdp__axis" data-axis-group={axis.key}>
+              <p class="pdp__axis-label">{axis.label}</p>
+              <div
+                class="pdp__axis-options"
+                role="group"
+                aria-label={axis.label}
               >
-                {variant.label}
-              </button>
-            ))}
-          </div>
+                {axis.values.map((value, i) => {
+                  const isActive = variantConfig.defaultSelection[axis.key] === value;
+                  const hex = axis.isColor ? getColorHex(value) : undefined;
+
+                  return axis.isColor ? (
+                    <button
+                      type="button"
+                      class:list={['color-swatch', { 'is-active': isActive }]}
+                      data-axis={axis.key}
+                      data-value={value}
+                      aria-label={value}
+                      aria-pressed={isActive ? 'true' : 'false'}
+                      title={value}
+                    >
+                      {hex ? (
+                        <span class="color-swatch__chip" style={`background:${hex}`} />
+                      ) : (
+                        <span class="color-swatch__text">{value}</span>
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      class:list={['variant-btn', { 'is-active': isActive }]}
+                      data-axis={axis.key}
+                      data-value={value}
+                      aria-pressed={isActive ? 'true' : 'false'}
+                    >
+                      {axis.key === 'width_cm' ? `${value} см` : value}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -122,7 +164,7 @@ const seo = buildProductPageSeo(product);
         data-base-title={product.title}
         data-price={product.price}
         data-image={mainImage ?? ''}
-        data-variant-id={hasVariants ? product.variants![0].id : ''}
+        data-variant-id={hasVariants ? variantConfig!.variants[0].id : ''}
       >
         В корзину
       </button>
@@ -145,7 +187,7 @@ const seo = buildProductPageSeo(product);
             {Object.entries(product.attributes).map(([key, value]) => (
               <>
                 <dt>{attributeLabel(key)}</dt>
-                <dd>{formatAttributeValue(value)}</dd>
+                <dd data-spec-key={key}>{formatAttributeValue(value)}</dd>
               </>
             ))}
           </dl>
@@ -153,31 +195,36 @@ const seo = buildProductPageSeo(product);
       )}
     </div>
   </article>
+
+  {hasVariants && variantConfig && (
+    <script
+      type="application/json"
+      data-variant-config
+      set:html={JSON.stringify({
+        axes: variantConfig.axes.map(({ key, label, values, isColor }) => ({
+          key,
+          label,
+          values,
+          isColor,
+        })),
+        colorImage: variantConfig.colorImage,
+        defaultSelection: variantConfig.defaultSelection,
+        variants: variantConfig.variants,
+        basePrice: variantConfig.basePrice,
+      })}
+    />
+  )}
+
   <div class="container">
     <SimilarProducts productId={product.id} />
   </div>
 </StoreLayout>
 
 <script>
-  import { initProductVariants } from '../../scripts/cart-ui';
+  import { initGalleryThumbs, initProductVariants } from '../../scripts/cart-ui';
 
+  initGalleryThumbs();
   initProductVariants();
-
-  document.querySelectorAll('[data-thumb-src]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const src = btn.getAttribute('data-thumb-src');
-      const main = document.querySelector<HTMLImageElement>('[data-product-main-image]');
-      if (!src || !main) return;
-
-      main.src = src;
-      document.querySelectorAll('[data-thumb-src]').forEach((el) => {
-        el.classList.remove('is-active');
-        el.setAttribute('aria-pressed', 'false');
-      });
-      btn.classList.add('is-active');
-      btn.setAttribute('aria-pressed', 'true');
-    });
-  });
 </script>
 
 <style>
@@ -217,6 +264,11 @@ const seo = buildProductPageSeo(product);
     border-color: var(--accent);
   }
 
+  .pdp__thumb:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
   .pdp__thumb img {
     display: block;
     width: 72px;
@@ -243,14 +295,17 @@ const seo = buildProductPageSeo(product);
 
   .pdp__variants {
     margin: calc(var(--space) * 6) 0;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space) * 5);
   }
 
-  .pdp__variants-label {
+  .pdp__axis-label {
     font-weight: 500;
     margin-bottom: calc(var(--space) * 3);
   }
 
-  .pdp__variants-list {
+  .pdp__axis-options {
     display: flex;
     flex-wrap: wrap;
     gap: calc(var(--space) * 2);
@@ -268,6 +323,45 @@ const seo = buildProductPageSeo(product);
   .variant-btn.is-active {
     border-color: var(--accent);
     background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  }
+
+  .variant-btn:focus-visible,
+  .color-swatch:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .color-swatch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 2px;
+    border: 2px solid var(--line);
+    border-radius: 50%;
+    background: var(--surface);
+    cursor: pointer;
+  }
+
+  .color-swatch.is-active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+
+  .color-swatch__chip {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+
+  .color-swatch__text {
+    font-size: 0.625rem;
+    line-height: 1;
+    text-align: center;
+    padding: 0 2px;
   }
 
   .pdp__add {

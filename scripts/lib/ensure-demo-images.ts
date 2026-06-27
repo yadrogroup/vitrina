@@ -3,6 +3,17 @@ import path from 'node:path';
 import sharp from 'sharp';
 import { getProducts } from '../../src/lib/catalog';
 
+const ATTRIBUTE_COLORS: Record<string, string> = {
+  'чёрный': '#1c1c1c',
+  'черный': '#1c1c1c',
+  'серый': '#8a8a8a',
+  'молочный': '#f3efe6',
+  'бежевый': '#c9b896',
+  'натуральный': '#c4a574',
+  'орех': '#8b5a2b',
+  'белый': '#f5f5f5',
+};
+
 const PALETTE: Record<string, string> = {
   sofa: '#8a8a8a',
   bed: '#a67c52',
@@ -14,7 +25,36 @@ const PALETTE: Record<string, string> = {
   default: '#b0a99f',
 };
 
-function colorForPath(relativePath: string): string {
+function buildDemoColorMap(): Map<string, string> {
+  const map = new Map<string, string>();
+
+  for (const product of getProducts()) {
+    const color = product.attributes?.color;
+    const hex = typeof color === 'string' ? ATTRIBUTE_COLORS[color.toLowerCase()] : undefined;
+    if (!hex) continue;
+
+    for (const image of product.images) {
+      if (image.startsWith('/demo/')) map.set(image, hex);
+    }
+
+    for (const variant of product.variants ?? []) {
+      const variantColor = variant.attributes?.color;
+      const variantHex =
+        typeof variantColor === 'string' ? ATTRIBUTE_COLORS[variantColor.toLowerCase()] : undefined;
+      if (variant.image?.startsWith('/demo/') && variantHex) {
+        map.set(variant.image, variantHex);
+      }
+    }
+  }
+
+  return map;
+}
+
+function colorForPath(relativePath: string, colorMap: Map<string, string>): string {
+  const url = relativePath.startsWith('/demo/') ? relativePath : `/demo/${relativePath}`;
+  const mapped = colorMap.get(url);
+  if (mapped) return mapped;
+
   const name = path.basename(relativePath, path.extname(relativePath)).toLowerCase();
   if (name.includes('sofa')) return PALETTE.sofa;
   if (name.includes('bed')) return PALETTE.bed;
@@ -26,12 +66,14 @@ function colorForPath(relativePath: string): string {
   return PALETTE.default;
 }
 
-/** Создаёт placeholder-фото для путей из каталога, если файлов нет на диске. */
+/** Создаёт placeholder-фото для путей из каталога. */
 export async function ensureCatalogDemoImages(root: string): Promise<string[]> {
   const demoDir = path.join(root, 'public', 'demo');
   await mkdir(demoDir, { recursive: true });
 
+  const colorMap = buildDemoColorMap();
   const paths = new Set<string>();
+
   for (const product of getProducts()) {
     for (const image of product.images) {
       if (image.startsWith('/demo/')) paths.add(image);
@@ -54,7 +96,8 @@ export async function ensureCatalogDemoImages(root: string): Promise<string[]> {
       // файла нет — создаём
     }
 
-    const background = colorForPath(fileName);
+    const background = colorForPath(fileName, colorMap);
+
     await sharp({
       create: {
         width: 960,
@@ -63,7 +106,7 @@ export async function ensureCatalogDemoImages(root: string): Promise<string[]> {
         background,
       },
     })
-      .jpeg({ quality: 88 })
+      .webp({ quality: 82 })
       .toFile(target);
 
     created.push(url);

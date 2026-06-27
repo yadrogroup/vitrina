@@ -1,0 +1,17 @@
+{
+  "name": "vitrina-photo-inference",
+  "private": true,
+  "type": "module",
+  "main": "index.mjs",
+  "scripts": {
+    "start": "node local-server.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "onnxruntime-node": "^1.26.0",
+    "sharp": "0.35.1"
+  },
+  "overrides": {
+    "sharp": "0.35.1"
+  }
+}

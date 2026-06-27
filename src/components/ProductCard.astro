@@ -63,6 +63,9 @@ const availability = getAvailabilityInfo(product);
       )}
 
       <div class="product-card__badges">
+        {product.bestseller && (
+          <Badge tone="highlight" class="product-card__badge product-card__badge--hit">Хит продаж</Badge>
+        )}
         {discount && <Badge tone="highlight" class="product-card__badge">−{discount}%</Badge>}
         {availability.tone === 'success' && (
           <Badge tone="success" class="product-card__badge">{availability.label}</Badge>
@@ -106,6 +109,11 @@ const availability = getAvailabilityInfo(product);
     box-shadow: var(--shadow-1);
     overflow: hidden;
     transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  /* display:flex выше ломает нативное скрытие через [hidden] в фильтрах каталога */
+  .product-card[hidden] {
+    display: none !important;
   }
 
   .product-card:hover {
@@ -170,6 +178,11 @@ const availability = getAvailabilityInfo(product);
 
   .product-card__badge {
     box-shadow: var(--shadow-1);
+  }
+
+  .product-card__badge--hit {
+    background: var(--accent);
+    color: #fff;
   }
 
   .product-card__quick {

@@ -1,4 +1,5 @@
 ---
+import '../styles/fonts.css';
 import '../styles/global.css';
 import '../styles/store.css';
 import siteConfig from '../../site.config';
@@ -48,12 +49,6 @@ const resolvedOgImage = ogImage ?? new URL('/favicon.svg', siteConfig.url).toStr
         <script type="application/ld+json" set:html={serializeJsonLd(jsonLd)} />
       )
     }
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Onest:wght@600;700;800&display=swap&subset=cyrillic"
-      rel="stylesheet"
-    />
   </head>
   <body>
     <slot />

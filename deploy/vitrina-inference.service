@@ -1,0 +1,15 @@
+[Unit]
+Description=Vitrina photo search inference (SigLIP vision)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/vitrina-inference
+Environment=PORT=8788
+Environment=MODELS_CACHE=/opt/vitrina-demo/dist/models/.cache
+ExecStart=/usr/bin/node local-server.mjs
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

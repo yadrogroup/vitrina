@@ -1,6 +1,6 @@
 import type { SourceAdapter } from '../types/product';
 import type { CsvColumnMap } from '../types/catalog';
-import { DEFAULT_CSV_COLUMN_MAP } from '../types/catalog';
+import { createCsvAdapter } from './csv-adapter';
 
 /** Преобразует URL или ID Google Sheets в CSV-export URL */
 export function toGoogleSheetsCsvUrl(input: string): string {

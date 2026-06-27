@@ -1,0 +1,194 @@
+---
+import StoreLayout from './StoreLayout.astro';
+import { buildSitePageSeo } from '../lib/seo';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  lead?: string;
+  wide?: boolean;
+}
+
+const { title, description, path, lead, wide = false } = Astro.props;
+const seo = buildSitePageSeo(title, description, path);
+---
+
+<StoreLayout
+  title={seo.title}
+  description={seo.description}
+  canonicalUrl={seo.canonicalUrl}
+>
+  <div class:list={['container', 'info-page', { 'info-page--wide': wide }]}>
+    <h1>{title}</h1>
+    {lead && <p class="info-page__lead text-muted">{lead}</p>}
+    <div class="info-page__content">
+      <slot />
+    </div>
+  </div>
+</StoreLayout>
+
+<style>
+  .info-page {
+    padding: calc(var(--space) * 8) 0 calc(var(--space) * 12);
+    max-width: 720px;
+  }
+
+  .info-page--wide {
+    max-width: 960px;
+  }
+
+  .info-page__lead {
+    font-size: 1.125rem;
+    margin: calc(var(--space) * 3) 0 calc(var(--space) * 8);
+  }
+
+  .info-page__content :global(.info-section) {
+    margin-bottom: calc(var(--space) * 8);
+  }
+
+  .info-page__content :global(.info-section h2) {
+    font-size: 1.25rem;
+    margin-bottom: calc(var(--space) * 3);
+  }
+
+  .info-page__content :global(.info-section h3) {
+    font-size: 1.0625rem;
+    margin: calc(var(--space) * 5) 0 calc(var(--space) * 2);
+  }
+
+  .info-page__content :global(.info-section p) {
+    margin: 0 0 calc(var(--space) * 3);
+  }
+
+  .info-page__content :global(.info-section ul),
+  .info-page__content :global(.info-section ol) {
+    margin: 0 0 calc(var(--space) * 3);
+    padding-left: 1.25rem;
+  }
+
+  .info-page__content :global(.info-section li + li) {
+    margin-top: calc(var(--space) * 2);
+  }
+
+  .info-page__content :global(.info-section dl) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--space) * 2) calc(var(--space) * 4);
+    margin: 0;
+  }
+
+  .info-page__content :global(.info-section dt) {
+    color: var(--ink-muted);
+    font-size: 0.875rem;
+  }
+
+  .info-page__content :global(.info-section dd) {
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .info-page__content :global(.info-page__cta) {
+    padding: calc(var(--space) * 5);
+    background: var(--surface-2);
+    border-radius: var(--radius-card);
+    margin-top: calc(var(--space) * 6);
+  }
+
+  .info-page__content :global(.info-cards) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: calc(var(--space) * 5);
+    margin-bottom: calc(var(--space) * 8);
+  }
+
+  .info-page__content :global(.info-card) {
+    padding: calc(var(--space) * 5);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+  }
+
+  .info-page__content :global(.info-card h2) {
+    font-size: 1.125rem;
+    margin-bottom: calc(var(--space) * 3);
+  }
+
+  .info-page__content :global(.info-card p) {
+    margin: 0;
+    color: var(--ink-muted);
+    font-size: 0.9375rem;
+  }
+
+  .info-page__content :global(.info-card__link) {
+    display: inline-block;
+    margin-top: calc(var(--space) * 3);
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  .info-page__content :global(.faq-list) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space) * 3);
+  }
+
+  .info-page__content :global(.faq-item) {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+
+  .info-page__content :global(.faq-item summary) {
+    padding: calc(var(--space) * 4) calc(var(--space) * 5);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .info-page__content :global(.faq-item summary::-webkit-details-marker) {
+    display: none;
+  }
+
+  .info-page__content :global(.faq-item summary::after) {
+    content: '+';
+    float: right;
+    color: var(--ink-muted);
+    font-weight: 400;
+  }
+
+  .info-page__content :global(.faq-item[open] summary::after) {
+    content: '−';
+  }
+
+  .info-page__content :global(.faq-item__body) {
+    padding: 0 calc(var(--space) * 5) calc(var(--space) * 4);
+    color: var(--ink-muted);
+    font-size: 0.9375rem;
+  }
+
+  .info-page__content :global(.showroom-list) {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .info-page__content :global(.showroom-list li) {
+    padding: calc(var(--space) * 4) 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .info-page__content :global(.showroom-list li:last-child) {
+    border-bottom: none;
+  }
+
+  @media (max-width: 768px) {
+    .info-page__content :global(.info-cards) {
+      grid-template-columns: 1fr;
+    }
+
+    .info-page__content :global(.info-section dl) {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

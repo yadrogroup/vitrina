@@ -6,5 +6,8 @@ export const SIMILAR_TOP_K = 4;
 
 export const EMBEDDINGS_URL = '/embeddings.json';
 
+/** Серверный инференс для поиска по фото (без загрузки модели в браузер). */
+export const PHOTO_SEARCH_API_URL = '/api/photo-search';
+
 /** Путь к кешу весов (совпадает с env.cacheDir в fetch-model) */
 export const MODELS_BASE_PATH = '/models/.cache/';

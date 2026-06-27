@@ -1,11 +1,11 @@
 {
-  "date": "2026-06-16",
-  "url": "http://localhost:4322/",
+  "date": "2026-06-22",
+  "url": "http://localhost:54961/",
   "scores": {
-    "performance": 59,
+    "performance": 97,
     "accessibility": 96,
-    "best-practices": 96,
+    "best-practices": 100,
     "seo": 100
   },
-  "notes": "Perf на localhost: Google Fonts + cold start. CLIP не грузится на главной до взаимодействия."
+  "notes": "Production dist (serve). Self-host fontsource. Astro preview давал perf 59 — не использовать для отчёта."
 }

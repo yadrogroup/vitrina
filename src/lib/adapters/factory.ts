@@ -1,7 +1,9 @@
 import type { SiteConfig } from '../../../site.config';
 import type { SourceAdapter } from '../types/product';
 import { DEFAULT_CSV_COLUMN_MAP, type CsvColumnMap } from '../types/catalog';
+import { createApiAdapter } from './api';
 import { createCsvAdapter } from './csv-adapter';
+import { createDbAdapter } from './db-adapter';
 import { createGoogleSheetsAdapter } from './gsheets-adapter';
 import { resolveSourceUrl } from './utils';
 import { createYmlAdapter } from './yml-adapter';
@@ -19,6 +21,10 @@ export function createAdapter(config: SiteConfig): SourceAdapter {
       return createCsvAdapter(sourceUrl, columnMap);
     case 'gsheets':
       return createGoogleSheetsAdapter(sourceUrl, columnMap);
+    case 'api':
+      return createApiAdapter(config);
+    case 'db':
+      return createDbAdapter();
     default: {
       const _exhaustive: never = source;
       throw new Error(`Неизвестный источник каталога: ${_exhaustive}`);

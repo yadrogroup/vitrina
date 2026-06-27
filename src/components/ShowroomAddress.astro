@@ -1,0 +1,47 @@
+---
+import siteConfig from '../../site.config';
+import { getPrimaryShowroom } from '../lib/showrooms';
+
+interface Props {
+  /** Показывать город перед адресом (по умолчанию — да). */
+  showCity?: boolean;
+  class?: string;
+}
+
+const { showCity = true, class: className } = Astro.props;
+const primary = getPrimaryShowroom();
+const city = siteConfig.contacts.city;
+const address = primary?.address ?? siteConfig.contacts.address;
+const twoGisUrl = primary?.twoGisUrl ?? siteConfig.contacts.twoGisUrl;
+const text = showCity ? `${city}${address ? `, ${address}` : ''}` : (address ?? '');
+---
+
+{
+  twoGisUrl && text ? (
+    <a
+      href={twoGisUrl}
+      class:list={['showroom-address-link', className]}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Открыть адрес салона в 2ГИС"
+    >
+      {text}
+    </a>
+  ) : (
+    <span class={className}>{text}</span>
+  )
+}
+
+<style>
+  .showroom-address-link {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+    text-underline-offset: 0.15em;
+  }
+
+  .showroom-address-link:hover {
+    color: var(--accent);
+    text-decoration-color: currentColor;
+  }
+</style>

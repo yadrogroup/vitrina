@@ -2,6 +2,7 @@
 import BaseLayout from './BaseLayout.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import MobileNav from '../components/MobileNav.astro';
 
 interface Props {
   title?: string;
@@ -29,6 +30,7 @@ const { title, description, canonicalUrl, ogType, ogImage, jsonLd } = Astro.prop
     <slot />
   </main>
   <Footer />
+  <MobileNav pathname={Astro.url.pathname} hash={Astro.url.hash} />
 </BaseLayout>
 
 <script>

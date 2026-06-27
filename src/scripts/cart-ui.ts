@@ -15,12 +15,14 @@ export function initCartBadge(): void {
 }
 
 function updateBadge(): void {
-  const badge = document.querySelector<HTMLElement>('[data-cart-count]');
-  if (!badge) return;
+  const badges = document.querySelectorAll<HTMLElement>('[data-cart-count]');
+  if (badges.length === 0) return;
 
   const count = getCartCount();
-  badge.textContent = String(count);
-  badge.hidden = count === 0;
+  badges.forEach((badge) => {
+    badge.textContent = String(count);
+    badge.hidden = count === 0;
+  });
 }
 
 export function initAddToCartButtons(): void {
@@ -154,40 +156,201 @@ function escapeHtml(value: string): string {
     .replace(/"/g, '&quot;');
 }
 
+interface VariantAxisConfig {
+  key: string;
+  label: string;
+  values: string[];
+  isColor: boolean;
+}
+
+interface VariantConfigPayload {
+  axes: VariantAxisConfig[];
+  colorImage: Record<string, string>;
+  defaultSelection: Record<string, string>;
+  variants: Array<{
+    id: string;
+    label: string;
+    attributes?: Record<string, string>;
+    image?: string;
+    price?: number;
+  }>;
+  basePrice: number;
+}
+
+function readVariantConfig(): VariantConfigPayload | null {
+  const el = document.querySelector<HTMLScriptElement>('[data-variant-config]');
+  if (!el?.textContent) return null;
+
+  try {
+    return JSON.parse(el.textContent) as VariantConfigPayload;
+  } catch {
+    return null;
+  }
+}
+
+function formatSpecValue(key: string, value: string): string {
+  if (key === 'width_cm' || key === 'height_cm' || key === 'depth_cm') {
+    return `${value} см`;
+  }
+  return value;
+}
+
+function resolveVariantFromSelection(
+  variants: VariantConfigPayload['variants'],
+  selection: Record<string, string>,
+): VariantConfigPayload['variants'][number] {
+  const exact = variants.find((variant) => {
+    if (!variant.attributes) return false;
+    return Object.entries(selection).every(([key, value]) => {
+      if (!value) return true;
+      return String(variant.attributes?.[key] ?? '') === value;
+    });
+  });
+  if (exact) return exact;
+
+  let best = variants[0];
+  let bestScore = -1;
+
+  for (const variant of variants) {
+    if (!variant.attributes) continue;
+    let score = 0;
+    for (const [key, value] of Object.entries(selection)) {
+      if (!value) continue;
+      if (String(variant.attributes[key] ?? '') === value) score += 1;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      best = variant;
+    }
+  }
+
+  return best;
+}
+
+function buildVariantLabel(
+  variant: VariantConfigPayload['variants'][number],
+  axes: VariantAxisConfig[],
+): string {
+  return axes
+    .map((axis) => String(variant.attributes?.[axis.key] ?? ''))
+    .filter(Boolean)
+    .join(', ');
+}
+
+export function initGalleryThumbs(): void {
+  document.querySelectorAll<HTMLElement>('[data-thumb-src]:not([data-color])').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const src = btn.dataset.thumbSrc;
+      const main = document.querySelector<HTMLImageElement>('[data-product-main-image]');
+      if (!src || !main) return;
+
+      main.src = src;
+      document.querySelectorAll<HTMLElement>('[data-thumb-src]').forEach((el) => {
+        const active = el === btn;
+        el.classList.toggle('is-active', active);
+        el.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+    });
+  });
+}
+
 export function initProductVariants(): void {
   const root = document.querySelector('[data-product-variants]');
-  if (!root) return;
+  const config = readVariantConfig();
+  if (!root || !config) return;
 
   const priceEl = document.querySelector<HTMLElement>('[data-product-price]');
   const imageEl = document.querySelector<HTMLImageElement>('[data-product-main-image]');
   const addBtn = document.querySelector<HTMLElement>('[data-add-to-cart]');
+  const baseTitle = addBtn?.dataset.baseTitle ?? addBtn?.dataset.title ?? '';
+
+  let selection = { ...config.defaultSelection };
+
+  function setAxisButtonState(axisKey: string, value: string): void {
+    root!.querySelectorAll<HTMLElement>(`[data-axis="${axisKey}"][data-value]`).forEach((el) => {
+      const active = el.dataset.value === value;
+      el.classList.toggle('is-active', active);
+      el.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+  }
+
+  function syncThumbForColor(color: string | undefined): void {
+    const targetSrc = color ? config!.colorImage[color] : undefined;
+    if (!targetSrc) return;
+
+    document.querySelectorAll<HTMLElement>('[data-thumb-src]').forEach((btn) => {
+      const src = btn.dataset.thumbSrc;
+      const isColorThumb = Boolean(btn.dataset.color);
+      if (isColorThumb) {
+        const active = src === targetSrc;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      } else {
+        btn.classList.remove('is-active');
+        btn.setAttribute('aria-pressed', 'false');
+      }
+    });
+  }
+
+  function applySelection(nextSelection: Record<string, string>): void {
+    selection = { ...nextSelection };
+    const variant = resolveVariantFromSelection(config!.variants, selection);
+    const resolvedSelection: Record<string, string> = {};
+
+    for (const axis of config!.axes) {
+      const value = String(variant.attributes?.[axis.key] ?? selection[axis.key] ?? '');
+      resolvedSelection[axis.key] = value;
+      setAxisButtonState(axis.key, value);
+    }
+
+    selection = resolvedSelection;
+
+    const price = variant.price ?? config!.basePrice;
+    const color = resolvedSelection.color;
+    const image = (color && config!.colorImage[color]) || variant.image || addBtn?.dataset.image || '';
+    const label = buildVariantLabel(variant, config!.axes);
+
+    if (priceEl) priceEl.textContent = formatCartPrice(price);
+    if (imageEl && image) {
+      imageEl.src = image;
+      imageEl.alt = label ? `${baseTitle}, ${label}` : baseTitle;
+    }
+
+    if (variant.attributes) {
+      for (const [key, value] of Object.entries(variant.attributes)) {
+        const specEl = document.querySelector<HTMLElement>(`[data-spec-key="${key}"]`);
+        if (specEl) specEl.textContent = formatSpecValue(key, String(value));
+      }
+    }
+
+    if (addBtn) {
+      addBtn.dataset.variantId = variant.id;
+      addBtn.dataset.price = String(price);
+      if (image) addBtn.dataset.image = image;
+      addBtn.dataset.title = label ? `${baseTitle}, ${label}` : baseTitle;
+    }
+
+    syncThumbForColor(color);
+  }
 
   root.addEventListener('click', (event) => {
-    const btn = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-variant-id]');
-    if (!btn) return;
+    const btn = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-axis][data-value]');
+    if (!btn || !root.contains(btn)) return;
 
-    root.querySelectorAll('[data-variant-id]').forEach((el) => {
-      el.classList.remove('is-active');
-      el.setAttribute('aria-pressed', 'false');
-    });
-    btn.classList.add('is-active');
-    btn.setAttribute('aria-pressed', 'true');
+    const axisKey = btn.dataset.axis;
+    const value = btn.dataset.value;
+    if (!axisKey || !value) return;
 
-    const price = btn.dataset.variantPrice;
-    const image = btn.dataset.variantImage;
-    const variantId = btn.dataset.variantId;
-    const label = btn.dataset.variantLabel;
-
-    if (price && priceEl) priceEl.textContent = formatCartPrice(Number(price));
-    if (image && imageEl) {
-      imageEl.src = image;
-      imageEl.alt = label ?? imageEl.alt;
-    }
-    if (addBtn) {
-      if (variantId) addBtn.dataset.variantId = variantId;
-      if (price) addBtn.dataset.price = price;
-      if (image) addBtn.dataset.image = image;
-      if (label) addBtn.dataset.title = `${addBtn.dataset.baseTitle ?? addBtn.dataset.title}, ${label}`;
-    }
+    applySelection({ ...selection, [axisKey]: value });
   });
+
+  document.querySelectorAll<HTMLElement>('[data-thumb-src][data-color]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const color = btn.dataset.color;
+      if (!color) return;
+      applySelection({ ...selection, color });
+    });
+  });
+
+  applySelection(selection);
 }

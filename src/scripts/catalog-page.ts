@@ -10,6 +10,11 @@ function isMobileFilters(): boolean {
   return window.matchMedia(MOBILE_MQ).matches;
 }
 
+/** data-attr-* в HTML; через dataset camelCase ломает material, width_cm и кириллические ключи */
+function getCardAttr(card: HTMLElement, key: string): string | undefined {
+  return card.getAttribute(`data-attr-${key}`) ?? undefined;
+}
+
 function parseActiveFilters(form: HTMLFormElement): ActiveFilters {
   const data = new FormData(form);
   const active: ActiveFilters = { attributes: {}, attrRanges: {} };
@@ -61,12 +66,12 @@ function matchesFilters(card: HTMLElement, active: ActiveFilters): boolean {
 
   for (const [key, values] of Object.entries(active.attributes)) {
     if (!values.length) continue;
-    const cardValue = card.dataset[`attr_${key}`];
+    const cardValue = getCardAttr(card, key);
     if (!cardValue || !values.includes(cardValue)) return false;
   }
 
   for (const [key, range] of Object.entries(active.attrRanges)) {
-    const cardValue = Number(card.dataset[`attr_${key}`]);
+    const cardValue = Number(getCardAttr(card, key));
     if (!Number.isFinite(cardValue)) return false;
     if (range.min !== undefined && cardValue < range.min) return false;
     if (range.max !== undefined && cardValue > range.max) return false;

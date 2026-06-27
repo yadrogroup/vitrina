@@ -11,8 +11,22 @@ function xmlEscape(value: string): string {
     .replace(/'/g, '&apos;');
 }
 
+const INFO_PAGES = [
+  '/delivery/',
+  '/services/',
+  '/showroom/',
+  '/about/',
+  '/contacts/',
+  '/faq/',
+  '/care/',
+  '/warranty/',
+  '/returns/',
+  '/privacy/',
+  '/offer/',
+];
+
 export const GET: APIRoute = () => {
-  const staticPaths = ['/', '/catalog/', '/search/', '/cart/'];
+  const staticPaths = ['/', '/catalog/', '/search/', '/cart/', ...INFO_PAGES];
   const productPaths = getProducts().map((product) => `/product/${product.slug}/`);
   const urls = [...staticPaths, ...productPaths];
   const lastmod = new Date().toISOString().slice(0, 10);
